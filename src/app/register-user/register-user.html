@@ -1,0 +1,46 @@
+<header>
+  <h1>Tempero da Vovó</h1>
+</header>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<body>
+
+<form (ngSubmit)="register()" #form="ngForm">
+
+  <h2>Vamos criar seu login.</h2>
+  <h3>Esse login será usado para acessar o painel do restaurante, gerenciar pedidos e atualizar seu cardápio.</h3>
+
+  <div>
+    <label>Email: </label>
+    <input
+      type="email"
+      name="email"
+      [(ngModel)]="user.email"
+      required
+    />
+  </div>
+
+  <div class="password-wrapper">
+    <label>Senha: </label>
+    <input
+      [type]="showPassword ? 'text' : 'password'"
+      name="password"
+      [(ngModel)]="user.password"
+      required
+    />
+    <span class="toggle-password" (click)="togglePassword()">
+      <i [class]="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+    </span>
+  </div>
+
+  <button type="submit" [disabled]="form.invalid">
+    Cadastrar
+  </button>
+
+  <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+  <ul *ngIf="errorMessages.length" class="error">
+    <li *ngFor="let error of errorMessages">{{ error }}</li>
+  </ul>
+</form>
+
+</body>

@@ -1,0 +1,38 @@
+<header>
+  <h1>Tempero da Vovó</h1>
+</header>
+
+<main>
+<form (ngSubmit)="registerRestaurant()" #restaurantForm="ngForm">
+  <div class="title-form">
+    <h2>Cadastre seu restaurante</h2>
+  </div>
+  <h3>Aumente seus clientes e organize seus pedidos em um só lugar.</h3>
+  <div>
+    <label>Nome:</label>
+    <input type="text" name="name" [(ngModel)]="restaurant.name" required>
+  </div>
+
+  <div>
+    <label>Telefone:</label>
+    <input type="text" name="phone" [(ngModel)]="restaurant.phone" required>
+  </div>
+
+  <div>
+    <label>Endereço:</label>
+    <input type="text" name="address" [(ngModel)]="restaurant.address" required>
+  </div>
+
+  <button type="submit" [disabled]="restaurantForm.invalid">Cadastrar</button>
+    <h4>Ao continuar, você concorda em receber comunicações do Tempero da Vovó.</h4>
+</form>
+
+<p *ngIf="successMessage" class="success">
+  {{ successMessage }}
+</p>
+
+<p *ngIf="submitted && errorMessage" class="error">
+  {{ errorMessage }}
+</p>
+
+</main>
