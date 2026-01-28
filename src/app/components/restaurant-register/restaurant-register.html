@@ -1,8 +1,3 @@
-<header>
-  <h1>Tempero da Vovó</h1>
-</header>
-
-<main>
 <form (ngSubmit)="registerRestaurant()" #restaurantForm="ngForm">
   <div class="title-form">
     <h2>Cadastre seu restaurante</h2>
@@ -24,6 +19,11 @@
   </div>
 
   <button type="submit" [disabled]="restaurantForm.invalid">Cadastrar</button>
+
+    <a class="alreadRegistered" routerLink="/">
+      Já possui conta? Entre!
+    </a>
+
     <h4>Ao continuar, você concorda em receber comunicações do Tempero da Vovó.</h4>
 </form>
 
@@ -34,5 +34,3 @@
 <p *ngIf="submitted && errorMessage" class="error">
   {{ errorMessage }}
 </p>
-
-</main>

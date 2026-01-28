@@ -1,10 +1,14 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  template: `<router-outlet></router-outlet>`
+  imports: [CommonModule, RouterOutlet],
+  templateUrl: './app.html'
 })
-export class App {}
+export class AppComponent {
+  constructor(public notification: NotificationService) {}
+}

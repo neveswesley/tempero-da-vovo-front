@@ -1,1 +1,13 @@
+<div class="notifications-container">
+  <div
+    class="notification"
+    *ngFor="let item of notification.notifications$ | async"
+    [class.enter]="!item.entering && !item.leaving"
+    [class.leaving]="item.leaving"
+  >
+    <span>{{ item.message }}</span>
+    <button class="close" (click)="notification.removeById(item.id)">×</button>
+  </div>
+</div>
+
 <router-outlet></router-outlet>

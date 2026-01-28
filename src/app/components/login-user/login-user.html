@@ -1,0 +1,35 @@
+<form (submit)="login()">
+  <h2>Entre na sua conta.</h2>
+
+  <h3>Insira abaixo suas informações de login.</h3>
+
+  <div><label>Email:</label> <input type="email" name="email" [(ngModel)]="email" required /></div>
+  
+  <div class="password-wrapper">
+    
+    <label>Senha:</label>
+
+    <input
+      [type]="showPassword ? 'text' : 'password'"
+      name="password"
+      [(ngModel)]="password"
+      required
+      autocomplete="off"
+    />
+
+    <span class="toggle-password" (click)="togglePassword()">
+      <i [class]="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+    </span>
+
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <button type="submit" [disabled]="!email || !password">Entrar</button>
+
+  <a class="register" routerLink="/register-restaurant">
+    Não tem conta? Cadastre-se seu restaurante!
+  </a>
+
+  <a class="forgot" routerLink="/forgot-password"> Esqueceu sua senha? </a>
+</form>

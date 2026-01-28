@@ -1,0 +1,29 @@
+<div class="page-container">
+  
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="page-header">
+    <button class="back-button" (click)="goBack()">&lsaquo;</button>
+    <h1 class="title">Criar categoria</h1>
+  </div>
+    <h3>Insira o nome da categoria.</h3>
+
+    <label>Nome da categoria</label>
+    <input
+      type="text"
+      placeholder="Ex: Marmitex Grande"
+      formControlName="name"
+    />
+
+    <div
+      class="error-message"
+      *ngIf="form.get('name')?.touched && form.get('name')?.invalid"
+    >
+      Nome da categoria é obrigatório (2 a 50 caracteres).
+    </div>
+
+    <button type="submit" [disabled]="form.invalid">
+      Criar categoria
+    </button>
+  </form>
+</div>

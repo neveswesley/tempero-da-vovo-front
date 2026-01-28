@@ -1,0 +1,550 @@
+<!-- Header da Página -->
+<div class="page-header">
+  <h1>Cardápio</h1>
+
+  <!-- Barra de ferramentas -->
+  <div class="header-toolbar">
+    <!-- Campo de busca -->
+    <div class="search-wrapper">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar item..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      />
+      <button
+        *ngIf="searchTerm"
+        class="clear-search"
+        (click)="clearSearch()"
+        aria-label="Limpar busca"
+      >
+        <svg viewBox="0 0 24 24" fill="none">
+          <line
+            x1="18"
+            y1="6"
+            x2="6"
+            y2="18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <line
+            x1="6"
+            y1="6"
+            x2="18"
+            y2="18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Botões de ação -->
+    <div class="header-actions">
+      <!-- Botão Reorganizar -->
+      <button
+        class="icon-button"
+        (click)="toggleReorderMode()"
+        [class.active]="isReorderMode"
+        title="Reorganizar categorias"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 15h18M3 9h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <circle cx="7" cy="9" r="1.5" fill="currentColor" />
+          <circle cx="7" cy="15" r="1.5" fill="currentColor" />
+          <circle cx="17" cy="9" r="1.5" fill="currentColor" />
+          <circle cx="17" cy="15" r="1.5" fill="currentColor" />
+        </svg>
+      </button>
+
+      <!-- Botão Adicionar Categoria -->
+      <button class="icon-button" (click)="openAddCategoryModal()" title="Adicionar categoria">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line
+            x1="12"
+            y1="5"
+            x2="12"
+            y2="19"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <line
+            x1="5"
+            y1="12"
+            x2="19"
+            y2="12"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Banner de Modo Reorganizar -->
+<div class="reorder-banner" *ngIf="isReorderMode">
+  <div class="reorder-banner-content">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path
+        d="M9 5l7 7-7 7"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+    <span>Arraste as categorias para reorganizar</span>
+    <button class="done-button" (click)="exitReorderMode()">Concluir</button>
+  </div>
+</div>
+
+<!-- Estados de Loading e Erro -->
+<div *ngIf="loading" class="loading">
+  <div class="spinner"></div>
+  <p>Carregando categorias...</p>
+</div>
+
+<div *ngIf="error && !loading" class="error">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+    <line
+      x1="12"
+      y1="8"
+      x2="12"
+      y2="12"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+    <circle cx="12" cy="16" r="1" fill="currentColor" />
+  </svg>
+  <p>{{ error }}</p>
+  <button class="retry-button" (click)="loadCategories()">Tentar novamente</button>
+</div>
+
+<!-- Lista de Categorias -->
+<div class="categories-container" *ngIf="!loading && !error">
+  <!-- Mensagem quando não há categorias -->
+  <div *ngIf="categories.length === 0" class="no-categories">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+      <line
+        x1="9"
+        y1="9"
+        x2="15"
+        y2="15"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="15"
+        y1="9"
+        x2="9"
+        y2="15"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+    <h3>Nenhuma categoria cadastrada</h3>
+    <p>Crie sua primeira categoria para começar a organizar seu cardápio.</p>
+    <button class="add-first-category-btn" (click)="openAddCategoryModal()">
+      Adicionar primeira categoria
+    </button>
+  </div>
+
+  <!-- Cards de Categorias -->
+  <div
+    *ngFor="let category of filteredCategories; let i = index"
+    class="category-card"
+    [class.reorder-mode]="isReorderMode"
+    [class.dragging]="draggedIndex === i"
+    [draggable]="isReorderMode"
+    (dragstart)="onDragStart($event, i)"
+    (dragover)="onDragOver($event)"
+    (drop)="onDrop($event, i)"
+    (dragend)="onDragEnd()"
+  >
+    <div class="category-header">
+      <!-- Handle de Arrastar (só aparece no modo reorganizar) -->
+      <button *ngIf="isReorderMode" class="drag-handle" aria-label="Arrastar categoria">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="5" r="1.5" fill="currentColor" />
+          <circle cx="9" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="9" cy="19" r="1.5" fill="currentColor" />
+          <circle cx="15" cy="5" r="1.5" fill="currentColor" />
+          <circle cx="15" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="15" cy="19" r="1.5" fill="currentColor" />
+        </svg>
+      </button>
+
+      <!-- Botão de Recolher (escondido no modo reorganizar) -->
+      <button
+        *ngIf="!isReorderMode"
+        class="collapse-button"
+        (click)="toggleCollapse(i)"
+        [attr.aria-label]="'Recolher categoria ' + category.categoryName"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          [class.rotated]="!isCollapsed(i)"
+        >
+          <polyline
+            points="9 18 15 12 9 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <h2 class="category-title">
+        {{ category.categoryName }}
+        <span class="product-count"
+          >({{ category.products.length }}
+          {{ category.products.length === 1 ? 'item' : 'itens' }})</span
+        >
+      </h2>
+
+      <div class="menu-wrapper" *ngIf="!isReorderMode">
+        <button
+          class="menu-button"
+          (click)="toggleMenu(i, $event)"
+          [attr.aria-expanded]="openMenuIndex === i"
+          [attr.aria-label]="'Menu de opções da categoria ' + category.categoryName"
+        >
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+            <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+          </svg>
+        </button>
+
+        <div
+          class="dropdown-menu"
+          [class.active]="openMenuIndex === i"
+          (click)="$event.stopPropagation()"
+        >
+          <button class="dropdown-item" (click)="editCategory(category)">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Editar categoria
+          </button>
+
+          <button class="dropdown-item" (click)="addProduct(category)">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line
+                x1="12"
+                y1="5"
+                x2="12"
+                y2="19"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="5"
+                y1="12"
+                x2="19"
+                y2="12"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Adicionar novo item
+          </button>
+
+          <div class="dropdown-divider"></div>
+
+          <button
+            class="dropdown-item delete"
+            (click)="deleteCategory(category)"
+            [disabled]="isDeletingCategory(category.categoryId)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span *ngIf="!isDeletingCategory(category.categoryId)">Excluir categoria</span>
+            <span *ngIf="isDeletingCategory(category.categoryId)">Excluindo...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo colapsável -->
+    <div class="category-content" *ngIf="!isCollapsed(i) && !isReorderMode">
+      <!-- Estado vazio da categoria -->
+      <div *ngIf="!category.products || category.products.length === 0" class="empty-category">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+          <line
+            x1="12"
+            y1="8"
+            x2="12"
+            y2="16"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <line
+            x1="8"
+            y1="12"
+            x2="16"
+            y2="12"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+        <p>Nenhum produto nesta categoria</p>
+        <button class="add-first-product-btn" (click)="addProduct(category)">
+          Adicionar primeiro produto
+        </button>
+      </div>
+
+      <!-- Lista de produtos -->
+      <div *ngFor="let product of category.products; let j = index" class="product-wrapper">
+        <div class="product-row">
+          <!-- Imagem -->
+          <div class="product-image">
+            <img
+              *ngIf="product.imageUrl"
+              [src]="getImageUrl(product.imageUrl)"
+              [alt]="product.name"
+              (error)="onImageError($event)"
+            />
+            <svg
+              *ngIf="!product.imageUrl"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="12" cy="12" r="6.5" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          </div>
+
+          <!-- Info -->
+          <div class="product-info">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-desc" *ngIf="product.description">{{ product.description }}</div>
+          </div>
+
+          <!-- Mobile Actions -->
+          <div class="product-actions-mobile">
+            <button
+              class="pause-btn-mobile"
+              [class.paused]="!product.isActive"
+              (click)="togglePauseProduct(product)"
+            >
+              <svg *ngIf="product.isActive" viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" />
+                <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" />
+              </svg>
+              <svg *ngIf="!product.isActive" viewBox="0 0 24 24">
+                <polygon points="5 3 19 12 5 21" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="menu-btn" (click)="toggleProductMenu(i, j, $event)">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Desktop Actions -->
+          <div class="product-actions-desktop">
+            <!-- Botão de Complementos - SEM bordas, apenas texto -->
+            <button
+              class="complements-btn-text"
+              [class.active]="isComplementsOpen(i, j)"
+              (click)="toggleComplements(i, j)"
+            >
+              Ver complementos
+              <svg viewBox="0 0 24 24" fill="none">
+                <polyline
+                  points="6 9 12 15 18 9"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+            <div class="product-price">R$ {{ product.price | number: '1.2-2' }}</div>
+            <button
+              class="pause-btn"
+              [class.paused]="!product.isActive"
+              (click)="togglePauseProduct(product)"
+            >
+              <svg *ngIf="product.isActive" viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" />
+                <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" />
+              </svg>
+              <svg *ngIf="!product.isActive" viewBox="0 0 24 24">
+                <polygon points="5 3 19 12 5 21" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="menu-btn" (click)="toggleProductMenu(i, j, $event)">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Mobile Info -->
+          <div class="mobile-info mobile-only">
+            <div class="product-price-mobile">Preço: R$ {{ product.price | number: '1.2-2' }}</div>
+            <!-- Botão de Complementos Mobile - SEM bordas, apenas texto -->
+            <button
+              class="complements-btn-text-mobile"
+              [class.active]="isComplementsOpen(i, j)"
+              (click)="toggleComplements(i, j)"
+            >
+              {{ isComplementsOpen(i, j) ? 'Fechar complementos' : 'Ver complementos' }}
+              <svg viewBox="0 0 24 24" fill="none">
+                <polyline
+                  points="6 9 12 15 18 9"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdown Menu do Produto -->
+        <div class="product-dropdown" [class.active]="isProductMenuOpen(i, j)">
+          <button class="dropdown-item" (click)="editProduct(product)">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Editar item
+          </button>
+          <button class="dropdown-item" (click)="duplicateProduct(product)">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
+            Duplicar item
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item delete" (click)="deleteProduct(product)">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Remover item
+          </button>
+        </div>
+
+        <!-- Lista de Complementos -->
+        <div class="complements-list" *ngIf="isComplementsOpen(i, j)">
+          <ng-container *ngIf="getProductComplements(product) as complements">
+            <div class="complement-item" *ngFor="let complement of complements">
+              <span class="complement-name">{{ complement.name }}</span>
+              <span class="complement-price">+ R$ {{ complement.price | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="no-complements" *ngIf="complements.length === 0">
+              <p>Nenhum complemento cadastrado</p>
+              <button class="add-complement-btn" (click)="addComplement(product)">
+                Adicionar complemento
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div
+  class="menu-overlay"
+  [class.active]="openMenuIndex !== null || openProductMenu !== null"
+  (click)="closeAllMenus()"
+></div>
+
+<!-- Modal de Edição -->
+<app-edit-category-modal
+  [isOpen]="isEditModalOpen"
+  [category]="selectedCategory"
+  (closeModal)="closeEditModal()"
+  (categoryUpdated)="onCategoryUpdated()"
+></app-edit-category-modal>
+
+<!-- Modal de Confirmação -->
+<app-confirmation-modal></app-confirmation-modal>

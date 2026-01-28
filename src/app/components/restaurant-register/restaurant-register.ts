@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-restaurant-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterLink, HttpClientModule],
   templateUrl: './restaurant-register.html',
-  styleUrls: ['./restaurant-register.css']
+  styleUrls: ['./restaurant-register.css'],
 })
 export class RestaurantRegister {
 
@@ -33,7 +34,7 @@ export class RestaurantRegister {
     this.successMessage = '';
     this.errorMessage = '';
 
-    const url = 'https://localhost:44356/api/Restaurant';
+    const url = 'https://localhost:44356/api/Restaurants';
 
     this.http.post<any>(url, this.restaurant).subscribe({
       next: (response) => {
@@ -41,13 +42,10 @@ export class RestaurantRegister {
         this.successMessage = 'Restaurante cadastrado com sucesso!';
         this.submitted = false;
 
-        // 🔥 guarda o restaurantId retornado pelo backend
         localStorage.setItem('restaurantId', response.id);
 
-        // limpa o form
         this.restaurant = { name: '', phone: '', address: '' };
 
-        // 🔥 vai para cadastro de usuário
         this.router.navigate(['/register-user']);
       },
       error: (err) => {

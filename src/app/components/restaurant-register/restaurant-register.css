@@ -116,3 +116,16 @@ p {
 p.error {
   color: red;
 }
+
+.alreadRegistered{
+    margin-top: 20px;
+    color: #740300;
+    display: block;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+}
+
+.alreadRegistered:hover{
+  color: black;
+}
