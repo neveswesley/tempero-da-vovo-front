@@ -1,0 +1,251 @@
+<!-- delivery-zones.html -->
+
+<!-- ══════════════════════════════════════════
+     MODAL — NOVA CIDADE
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showCityModal" (click)="closeCityModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">{{ editingCity ? 'Editar cidade' : 'Nova cidade' }}</span>
+      <button class="modal-close" (click)="closeCityModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-scrollable">
+      <div class="modal-field">
+        <label class="modal-label">Nome da cidade</label>
+        <input class="modal-input" type="text" [(ngModel)]="cityForm.name" placeholder="Ex: São Paulo" />
+      </div>
+    </div>
+    <p class="modal-error" *ngIf="cityError">{{ cityError }}</p>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeCityModal()">Cancelar</button>
+      <button class="btn-modal-primary" (click)="saveCity()" [disabled]="savingCity">
+        {{ savingCity ? 'Salvando...' : (editingCity ? 'Salvar' : 'Criar cidade') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL — NOVO BAIRRO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showNeighborhoodModal" (click)="closeNeighborhoodModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">{{ editingNeighborhood ? 'Editar bairro' : 'Novo bairro' }}</span>
+      <button class="modal-close" (click)="closeNeighborhoodModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-scrollable">
+      <div class="modal-field">
+        <label class="modal-label">Nome do bairro</label>
+        <input class="modal-input" type="text" [(ngModel)]="neighborhoodForm.name" placeholder="Ex: Centro" />
+      </div>
+      <div class="modal-row">
+        <div class="modal-field">
+          <label class="modal-label">Taxa de entrega</label>
+          <input class="modal-input" type="text" inputmode="numeric" [value]="deliveryFeeRaw"
+            (input)="onDeliveryFeeInput($event)" placeholder="R$ 0,00" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Tempo base (min)</label>
+          <input class="modal-input" type="number" min="1" [(ngModel)]="neighborhoodForm.baseDeliveryTimeInMinutes"
+            placeholder="30" />
+        </div>
+      </div>
+    </div>
+    <p class="modal-error" *ngIf="neighborhoodError">{{ neighborhoodError }}</p>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeNeighborhoodModal()">Cancelar</button>
+      <button class="btn-modal-primary" (click)="saveNeighborhood()" [disabled]="savingNeighborhood">
+        {{ savingNeighborhood ? 'Salvando...' : (editingNeighborhood ? 'Salvar' : 'Criar bairro') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL — CONFIRMAR EXCLUSÃO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal-box modal-box-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Confirmar exclusão</span>
+    </div>
+    <div class="modal-scrollable">
+      <p class="modal-desc">
+        Tem certeza que deseja excluir
+        <strong>{{ deleteTarget?.name }}</strong>?
+        <span *ngIf="deleteTarget?.type === 'city'"> Todos os bairros dessa cidade também serão removidos.</span>
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeDeleteModal()">Cancelar</button>
+      <button class="btn-modal-danger" (click)="confirmDelete()" [disabled]="deleting">
+        {{ deleting ? 'Excluindo...' : 'Excluir' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE CONTENT
+══════════════════════════════════════════ -->
+<div class="zones-page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title-group">
+        <h1 class="topbar-title">Zonas de <span class="topbar-highlight">Entrega</span></h1>
+        <span class="topbar-sub">Gerencie cidades e bairros atendidos</span>
+      </div>
+    </div>
+    <button class="btn-add-city" (click)="openAddCityModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nova cidade
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="state-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <span class="state-text">Carregando zonas...</span>
+  </div>
+
+  <!-- Error -->
+  <div class="state-container" *ngIf="!loading && error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"
+      class="state-icon-error">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <circle cx="12" cy="16" r="1" fill="currentColor" />
+    </svg>
+    <span class="state-text">{{ error }}</span>
+    <button class="btn-retry" (click)="loadZones()">Tentar novamente</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="state-container" *ngIf="!loading && !error && cities.length === 0">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"
+      class="state-icon-empty">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+    <span class="state-text">Nenhuma cidade cadastrada ainda</span>
+    <button class="btn-add-city" (click)="openAddCityModal()">Adicionar primeira cidade</button>
+  </div>
+
+  <!-- Cities list -->
+  <div class="cities-list" *ngIf="!loading && !error && cities.length > 0">
+    <div class="city-card" *ngFor="let city of cities; trackBy: trackByCityId">
+
+      <!-- City header -->
+      <div class="city-header" (click)="toggleCity(city.id)">
+        <div class="city-header-left">
+          <svg class="city-arrow" [class.open]="isCityOpen(city.id)" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" width="14" height="14">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+          <div class="city-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div class="city-info">
+            <span class="city-name">{{ city.name }}</span>
+            <span class="city-meta">{{ city.neighborhoods.length || 0 }} bairro{{ (city.neighborhoods.length || 0) !== 1
+              ? 's' : '' }}</span>
+          </div>
+        </div>
+        <div class="city-header-actions" (click)="$event.stopPropagation()">
+          <button class="btn-icon btn-add-neighborhood" (click)="openAddNeighborhoodModal(city)"
+            title="Adicionar bairro">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Bairro</span>
+          </button>
+          <button class="btn-icon btn-edit" (click)="openEditCityModal(city)" title="Editar cidade">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button class="btn-icon btn-delete" (click)="openDeleteModal('city', city)" title="Excluir cidade">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Neighborhoods -->
+      <div class="neighborhoods-container" *ngIf="isCityOpen(city.id)">
+
+        <!-- Empty neighborhoods -->
+        <div class="neighborhoods-empty" *ngIf="!city.neighborhoods || city.neighborhoods.length === 0">
+          <span>Nenhum bairro cadastrado nessa cidade</span>
+          <button class="btn-text-add" (click)="openAddNeighborhoodModal(city)">
+            + Adicionar bairro
+          </button>
+        </div>
+
+        <!-- Neighborhood rows -->
+        <div class="neighborhood-row" *ngFor="let nb of city.neighborhoods; trackBy: trackByNeighborhoodId">
+          <div class="nb-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"
+              class="nb-icon">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span class="nb-name">{{ nb.name }}</span>
+          </div>
+          <div class="nb-meta">
+            <span class="nb-chip nb-chip-fee">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 6v12M9 9h4.5a1.5 1.5 0 010 3H9m0 0h4.5a1.5 1.5 0 010 3H9" />
+              </svg>
+              {{ formatCurrency(nb.deliveryFee) }}
+            </span>
+            <span class="nb-chip nb-chip-time">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {{ nb.baseDeliveryTimeInMinutes }} min
+            </span>
+          </div>
+          <div class="nb-actions">
+            <button class="btn-icon btn-edit" (click)="openEditNeighborhoodModal(city, nb)" title="Editar bairro">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+            <button class="btn-icon btn-delete" (click)="openDeleteModal('neighborhood', nb)" title="Excluir bairro">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

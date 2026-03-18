@@ -57,7 +57,7 @@ import { NotificationService } from '../services/notification.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 2000;
+      z-index: 2000000000000000;
       padding: 20px;
       animation: fadeIn 0.2s ease-out;
     }

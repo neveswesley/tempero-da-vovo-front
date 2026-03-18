@@ -1,0 +1,249 @@
+<!-- store.html -->
+
+<!-- ══════════════════════════════════════════
+     MODAL — CONFIRMAR SALVAMENTO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showSaveModal" (click)="closeSaveModal()">
+  <div class="modal-box modal-box-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Salvar alterações</span>
+    </div>
+    <div class="modal-scrollable">
+      <p class="modal-desc">
+        Tem certeza que deseja salvar as alterações da loja?
+        As informações serão atualizadas imediatamente para os clientes.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeSaveModal()">Cancelar</button>
+      <button class="btn-modal-primary" (click)="confirmSave()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE CONTENT
+══════════════════════════════════════════ -->
+<div class="store-page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title-group">
+      <h1 class="topbar-title">Minha <span class="topbar-highlight">Loja</span></h1>
+      <span class="topbar-sub">Gerencie as informações públicas do seu restaurante</span>
+    </div>
+    <button class="btn-save" (click)="openSaveModal()" [disabled]="saving || loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+        <polyline points="17 21 17 13 7 13 7 21" />
+        <polyline points="7 3 7 8 15 8" />
+      </svg>
+      Salvar alterações
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="state-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <span class="state-text">Carregando informações...</span>
+  </div>
+
+  <!-- Error -->
+  <div class="state-container" *ngIf="!loading && error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"
+      class="state-icon-error">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <circle cx="12" cy="16" r="1" fill="currentColor" />
+    </svg>
+    <span class="state-text">{{ error }}</span>
+    <button class="btn-retry" (click)="loadStore()">Tentar novamente</button>
+  </div>
+
+  <!-- Content -->
+  <div class="store-content" *ngIf="!loading && !error">
+
+    <!-- Global error -->
+    <div class="global-error" *ngIf="saveError">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <circle cx="12" cy="16" r="1" fill="currentColor" />
+      </svg>
+      {{ saveError }}
+    </div>
+
+    <!-- ── Informações da loja ──────────────────── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
+        <div class="section-info">
+          <span class="section-title">Informações da Loja</span>
+          <span class="section-sub">Dados exibidos para os clientes</span>
+        </div>
+      </div>
+
+      <div class="section-body">
+
+        <!-- Perfil da loja -->
+        <div class="profile-link-row">
+          <div class="profile-link-info">
+            <span class="profile-link-label">Perfil público da loja</span>
+            <span class="profile-link-hint">Veja como os clientes enxergam seu restaurante</span>
+          </div>
+          <a class="btn-view-profile" [routerLink]="['/delivery-home', restaurantId]" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+            Ver perfil
+          </a>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Nome -->
+        <div class="field-group">
+          <div class="field-label-row">
+            <label class="field-label">Nome da loja</label>
+            <span class="field-badge field-badge--warn" *ngIf="nameWarning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <circle cx="12" cy="16" r="1" fill="currentColor" />
+              </svg>
+              {{ nameWarning }}
+            </span>
+            <span class="field-badge field-badge--locked" *ngIf="nameBlocked">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              Disponível em {{ daysUntilNameChange }} dias
+            </span>
+          </div>
+          <input class="field-input" type="text" [(ngModel)]="form.name"
+            [disabled]="nameBlocked" placeholder="Ex: Tempero da Vovó" />
+        </div>
+
+        <!-- Descrição -->
+        <div class="field-group">
+          <div class="field-label-row">
+            <label class="field-label">Descrição</label>
+            <span class="field-optional">opcional</span>
+          </div>
+          <textarea class="field-input field-textarea" [(ngModel)]="form.description"
+            placeholder="Descreva seu restaurante para os clientes..." rows="3"></textarea>
+        </div>
+
+        <!-- Categoria + Telefone -->
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-label">Categoria</label>
+            <select class="field-input field-select" [(ngModel)]="form.category">
+              <option value="" disabled>Selecione...</option>
+              <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+            </select>
+          </div>
+          <div class="field-group field-grow">
+            <label class="field-label">Telefone de contato</label>
+            <input class="field-input" type="tel" [(ngModel)]="form.phone"
+              placeholder="(00) 00000-0000" (input)="onPhoneInput($event)" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Endereço ────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        </div>
+        <div class="section-info">
+          <span class="section-title">Endereço</span>
+          <span class="section-sub">Localização do restaurante</span>
+        </div>
+      </div>
+
+      <div class="section-body">
+
+        <!-- CEP -->
+        <div class="cep-row">
+          <div class="field-group field-sm">
+            <label class="field-label">CEP</label>
+            <div class="cep-input-wrapper">
+              <input class="field-input" type="text" [(ngModel)]="form.address.zipCode"
+                placeholder="00000-000" maxlength="9"
+                (input)="onZipCodeInput($event)" />
+              <div class="cep-spinner" *ngIf="fetchingCep"></div>
+            </div>
+          </div>
+          <div class="cep-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"
+              class="cep-hint-icon">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>Digite o CEP para preencher automaticamente</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-label">Endereço</label>
+            <input class="field-input" type="text" [(ngModel)]="form.address.street"
+              placeholder="Rua / Avenida" />
+          </div>
+          <div class="field-group field-xs">
+            <label class="field-label">Número</label>
+            <input class="field-input" type="text" [(ngModel)]="form.address.number"
+              placeholder="123" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group field-grow">
+            <label class="field-label">Bairro</label>
+            <input class="field-input" type="text" [(ngModel)]="form.address.neighborhood"
+              placeholder="Ex: Centro" />
+          </div>
+          <div class="field-group field-grow">
+            <label class="field-label">Cidade</label>
+            <input class="field-input" type="text" [(ngModel)]="form.address.city"
+              placeholder="Ex: São Paulo" />
+          </div>
+          <div class="field-group field-xs">
+            <label class="field-label">Estado</label>
+            <input class="field-input" type="text" [(ngModel)]="form.address.state"
+              placeholder="SP" maxlength="2" style="text-transform:uppercase" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <label class="field-label">Complemento</label>
+            <span class="field-optional">opcional</span>
+          </div>
+          <input class="field-input" type="text" [(ngModel)]="form.address.complement"
+            placeholder="Apto, sala, bloco..." />
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

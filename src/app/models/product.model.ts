@@ -1,4 +1,4 @@
-import { Category } from "./category.models";
+import { Category, CategoryWithProducts } from "./category.models";
 
 export interface CreateProductRequest {
   restaurantId: string;
@@ -9,18 +9,47 @@ export interface CreateProductRequest {
   imageUrl?: string;
 }
 
-export interface Complement{
+export interface Complement {
   name: string;
   price: number;
 }
+
+export interface CategorySummary {
+  categoryId: string;
+  categoryName: string;
+  displayOrder: number;
+}
+
 
 export interface Product {
   id: string;
   name: string;
   description?: string;
-  price: number | string;
+  price: number;
   imageUrl?: string;
   isActive: boolean;
-  category?: Category;
-  complements?: Complement;
+  category: {
+    id: string;
+    categoryName: string;
+    displayOrder: number;
+  };
+}
+
+export interface AddItemToOrderRequest {
+  restaurantId: string;
+  clientSessionId: string;
+  productId: string;
+  quantity: number;
+  observation?: string;
+  sideDishes: {
+    sideDishId: string;
+    quantity: number;
+  }[];
+}
+
+export interface OrderResponse {
+  orderId: string;
+  subTotal: number;
+  total: number;
+  itemsCount: number;
 }

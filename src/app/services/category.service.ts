@@ -73,7 +73,7 @@ export class CategoryService {
   deleteCategory(categoryId: string): Observable<any> {
     const restaurantId = localStorage.getItem('restaurantId');
 
-    return this.http.delete(
+    return this.http.patch(
       `${this.apiUrl}/${categoryId}`,
       {
         headers: {
@@ -82,4 +82,11 @@ export class CategoryService {
       }
     );
   }
+
+  updateCategoryOrder(restaurantId: string, categoryIds: string[]): Observable<any> {
+  return this.http.put(`${this.apiUrl}/reorder-category`, {
+    restaurantId,
+    categoryIds
+  });
+}
 }

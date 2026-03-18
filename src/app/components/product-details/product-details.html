@@ -1,0 +1,181 @@
+<div class="product-details-container">
+  <!-- Header -->
+  <div class="details-header">
+    <button class="back-btn" (click)="goBack()">
+      <span>&lsaquo;</span>
+    </button>
+    <h3 class="header-title">Detalhes do produto</h3>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Carregando produto...</p>
+  </div>
+
+  <!-- Content -->
+  <div class="details-content" *ngIf="!loading && product">
+    <!-- Product Header: Image + Info lado a lado -->
+    <div class="product-header-section">
+      <!-- Product Image -->
+      <div class="product-image-wrapper" *ngIf="product.imageUrl">
+        <img [src]="getImageUrl(product.imageUrl)" [alt]="product.name" />
+      </div>
+
+      <!-- Se não tiver imagem, ainda mostra o placeholder -->
+      <div class="product-image-wrapper" *ngIf="!product.imageUrl">
+        <div style="width: 100%; height: 100%; background-color: var(--border-color)"></div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info-section">
+        <h2 class="product-name">{{ product.name | uppercase }}</h2>
+        <p class="product-price">R$ {{ formatPrice(product.price) }}</p>
+        <p class="product-description" *ngIf="product.description">
+          {{ product.description | uppercase }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Side Dish Groups - APENAS SE EXISTIR -->
+    <div class="side-dish-groups" *ngIf="product.productSideDishGroups && product.productSideDishGroups.length > 0">
+      <!-- Search Box -->
+      <div class="search-box">
+        <input type="text" placeholder="Procurar pelo nome" class="search-input" [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)" />
+        <button class="clear-search" (click)="clearSearch()" *ngIf="searchTerm">✕</button>
+      </div>
+
+      <div *ngFor="let psdg of product.productSideDishGroups" class="side-dish-group"
+        [class.group-paused]="psdg.sideDishGroup.isPaused">
+        <div class="group-header" *ngIf="psdg.sideDishGroup && !psdg.sideDishGroup.isPaused">
+          <h4 class="group-name">{{ psdg.sideDishGroup.name }}</h4>
+          <div class="group-info">
+            <span class="group-selection-text">
+              <ng-container *ngIf="psdg.sideDishGroup.maxQuantity === 1">Escolha 1 item</ng-container>
+              <ng-container *ngIf="psdg.sideDishGroup.maxQuantity > 1">
+                Escolha até {{ getRemainingInGroup(psdg.sideDishGroup.id) }}
+                <ng-container *ngIf="getRemainingInGroup(psdg.sideDishGroup.id) === 1">item</ng-container>
+                <ng-container *ngIf="getRemainingInGroup(psdg.sideDishGroup.id) !== 1">itens</ng-container>
+              </ng-container>
+            </span>
+            <span class="group-badge" [class.required]="psdg.isRequired" [class.optional]="!psdg.isRequired">
+              {{ psdg.isRequired ? 'Obrigatório' : 'Opcional' }}
+            </span>
+            <button class="expand-btn" (click)="toggleGroup(psdg.sideDishGroup.id)">
+              {{ isGroupExpanded(psdg.sideDishGroup.id) ? '▼' : '▶' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Side Dishes List -->
+        <div class="side-dishes-list" *ngIf="
+            psdg.sideDishGroup &&
+            !psdg.sideDishGroup.isPaused &&
+            isGroupExpanded(psdg.sideDishGroup.id)
+          ">
+          <div *ngFor="let sideDish of getFilteredSideDishes(psdg.sideDishGroup.sideDish)" class="side-dish-item">
+            <div class="side-dish-icon">
+              <div class="placeholder-icon"></div>
+            </div>
+
+            <div class="side-dish-info">
+              <span class="side-dish-name">{{ sideDish.name }}</span>
+              <span class="side-dish-price" *ngIf="sideDish.unitPrice > 0">
+                R$ {{ formatPrice(sideDish.unitPrice) }}
+              </span>
+            </div>
+
+            <div class="side-dish-action">
+              <ng-container *ngIf="psdg.sideDishGroup.maxQuantity > 0">
+                <ng-container *ngIf="getSideDishQuantity(psdg.sideDishGroup.id, sideDish.id) === 0">
+                  <button class="add-btn" (click)="
+                      incrementSideDish(
+                        psdg.sideDishGroup.id,
+                        sideDish.id,
+                        psdg.sideDishGroup.maxQuantity
+                      )
+                    " [disabled]="
+                      getTotalInGroup(psdg.sideDishGroup.id) >= psdg.sideDishGroup.maxQuantity
+                    ">
+                    +
+                  </button>
+                </ng-container>
+
+                <ng-container *ngIf="getSideDishQuantity(psdg.sideDishGroup.id, sideDish.id) > 0">
+                  <div class="quantity-controls">
+                    <button class="qty-btn minus" (click)="decrementSideDish(psdg.sideDishGroup.id, sideDish.id)">
+                      −
+                    </button>
+                    <span class="qty-display">
+                      {{ getSideDishQuantity(psdg.sideDishGroup.id, sideDish.id) }}
+                    </span>
+                    <button class="qty-btn plus" (click)="
+                        incrementSideDish(
+                          psdg.sideDishGroup.id,
+                          sideDish.id,
+                          psdg.sideDishGroup.maxQuantity
+                        )
+                      " [disabled]="
+                        getTotalInGroup(psdg.sideDishGroup.id) >= psdg.sideDishGroup.maxQuantity
+                      ">
+                      +
+                    </button>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Mensagem quando não há resultados na busca -->
+          <div *ngIf="getFilteredSideDishes(psdg.sideDishGroup.sideDish).length === 0" class="no-results">
+            <p>Nenhum item encontrado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="observacoes-section">
+      <h4 class="observacoes-title">Observações</h4>
+      <textarea class="observacoes-input" [(ngModel)]="observacoes" placeholder="Ex.: Tirar cebola, maionese à parte"
+        rows="3"></textarea>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && !product" class="error-state">
+      <p>Produto não encontrado</p>
+      <button class="back-btn-large" (click)="goBack()">Voltar</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="details-footer" *ngIf="!loading && product">
+      <div class="quantity-selector">
+        <button class="qty-btn-large" (click)="decrementQuantity()" [disabled]="productQuantity <= 1">
+          −
+        </button>
+        <span class="qty-display-large">{{ productQuantity }}</span>
+        <button class="qty-btn-large" (click)="incrementQuantity()">+</button>
+      </div>
+
+      <button class="add-cart-btn" (click)="confirmAddToCart()" [disabled]="!canAddToCart()">
+        {{ editMode ? 'Salvar alterações' : 'Adicionar ao carrinho' }} • R$
+        {{ formatPrice(calculateTotalPrice()) }}
+      </button>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeModal()">
+      <div class="confirm-modal-content" (click)="$event.stopPropagation()">
+        <div class="confirm-modal-illustration">🛒</div>
+
+        <h3 class="confirm-modal-title">{{ product.name }} adicionado ao carrinho!</h3>
+
+        <button class="confirm-modal-btn-secondary" (click)="goBack()">Continuar comprando</button>
+        <button class="confirm-modal-btn-primary" (click)="goToCart()">
+          Avançar para o carrinho
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

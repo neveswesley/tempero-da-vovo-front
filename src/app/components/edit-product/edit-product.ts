@@ -2,7 +2,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, OnInit, NgZone, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductService } from '../../services/product.services';
+import { ProductService } from '../../services/product.service';
 import { NotificationService } from '../../services/notification.service';
 import { Category } from '../../services/category.service';
 import { Product } from '../../models/product.model';
@@ -58,7 +58,7 @@ export class EditProductComponent implements OnInit {
       console.log('✅ Categorias carregadas, agora carregando produto...');
       this.loadProduct();
     }).catch(err => {
-      console.error('❌ Erro ao carregar categorias:', err);
+      console.error('❌ Erro ao carregar cardápio:', err);
       this.isLoading = false;
     });
   }
@@ -168,7 +168,7 @@ export class EditProductComponent implements OnInit {
         console.log('📝 Valores finais do form:', this.form.value);
       },
       error: (err) => {
-        console.error('❌ ERRO ao carregar produto:', err);
+        console.error('❌ ERRO ao carregar cardápio:', err);
         console.error('❌ Status do erro:', err.status);
         console.error('❌ Mensagem do erro:', err.message);
         console.error('❌ Erro completo:', err);
@@ -219,7 +219,7 @@ export class EditProductComponent implements OnInit {
         },
         error: (err) => {
           console.error('❌ ERRO ao carregar categorias:', err);
-          this.notification.show('Erro ao carregar categorias');
+          this.notification.show('Erro ao carregar cardápio');
           reject(err);
         },
       });
@@ -251,9 +251,7 @@ export class EditProductComponent implements OnInit {
 
     this.productService.update(this.productId, payload).subscribe({
       next: () => {
-        console.log('✅ Produto atualizado com sucesso');
 
-        // Se usuário REMOVEU a imagem
         if (this.imageWasRemoved && this.originalImageUrl) {
           console.log('🗑️ Removendo imagem...');
           this.productService.removeImage(this.productId).subscribe({

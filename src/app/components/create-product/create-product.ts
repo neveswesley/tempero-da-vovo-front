@@ -8,7 +8,7 @@ import {
   FormControl,
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ProductService } from '../../services/product.services';
+import { ProductService } from '../../services/product.service';
 import { Category } from '../../services/category.service';
 import { NotificationService } from '../../services/notification.service';
 import { NgZone } from '@angular/core';
@@ -125,7 +125,7 @@ export class CreateProductComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Erro ao carregar categorias:', error);
+        console.error('Erro ao carregar cardápio:', error);
         this.loadingCategories = false;
         this.form.get('categoryId')?.enable();
       },
@@ -265,7 +265,7 @@ export class CreateProductComponent implements OnInit {
 
     this.productService.createProduct(payload, this.selectedFile || undefined).subscribe({
       next: () => {
-        this.notificationService.show('Cardápio atualizado com sucesso!');
+        this.notificationService.show('Cardápio atualizado com sucesso');
         setTimeout(() => {
           this.router.navigate(['/list-products']);
         }, 600);

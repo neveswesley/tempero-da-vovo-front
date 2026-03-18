@@ -216,7 +216,12 @@ textarea {
 
 
 .icon-button.delete {
-  color: #f44336;
+  color: #f44336;  
+}
+
+.icon-button svg {
+  width: 16px;
+  height: 16px;
 }
 
 .icon-button.delete:hover {

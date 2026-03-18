@@ -56,7 +56,7 @@ import { ConfirmationService } from '../services/confirmation.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
+      z-index: 10000   !important;
       animation: fadeIn 0.2s;
     }
 
@@ -73,6 +73,8 @@ import { ConfirmationService } from '../services/confirmation.service';
       width: 90%;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
       animation: slideIn 0.3s;
+      position: relative;
+      z-index: 10001;
     }
 
     @keyframes slideIn {
@@ -104,7 +106,7 @@ import { ConfirmationService } from '../services/confirmation.service';
 
     .icon-danger {
       background: #fee2e2;
-      color: #dc2626;
+      color: #740300;
     }
 
     .icon-warning {
@@ -114,7 +116,7 @@ import { ConfirmationService } from '../services/confirmation.service';
 
     .icon-info {
       background: #dbeafe;
-      color: #3b82f6;
+      color: #740300;
     }
 
     .modal-header h3 {
@@ -167,11 +169,11 @@ import { ConfirmationService } from '../services/confirmation.service';
     }
 
     .btn-danger {
-      background: #dc2626;
+      background: #740300;
     }
 
     .btn-danger:hover {
-      background: #b91c1c;
+      background: #740300;
     }
 
     .btn-warning {
@@ -183,11 +185,11 @@ import { ConfirmationService } from '../services/confirmation.service';
     }
 
     .btn-info {
-      background: #3b82f6;
+      background: #740300;
     }
 
     .btn-info:hover {
-      background: #2563eb;
+      background: #740300;
     }
   `]
 })

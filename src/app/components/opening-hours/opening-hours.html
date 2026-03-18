@@ -1,0 +1,199 @@
+<!-- opening-hours.html -->
+
+<!-- ══════════════════════════════════════════
+     MODAL — CONFIRMAR SALVAMENTO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showSaveModal" (click)="closeSaveModal()">
+  <div class="modal-box modal-box-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Salvar horários</span>
+    </div>
+    <div class="modal-scrollable">
+      <p class="modal-desc">
+        Tem certeza que deseja salvar as alterações nos horários de funcionamento?
+        Os horários atuais serão substituídos.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeSaveModal()">Cancelar</button>
+      <button class="btn-modal-primary" (click)="confirmSave()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar horários' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE CONTENT
+══════════════════════════════════════════ -->
+<div class="hours-page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title-group">
+        <h1 class="topbar-title">Horários de <span class="topbar-highlight">Funcionamento</span></h1>
+        <span class="topbar-sub">Configure os dias e horários em que seu restaurante está aberto</span>
+      </div>
+    </div>
+    <button class="btn-save" (click)="openSaveModal()" [disabled]="saving || loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+        <polyline points="17 21 17 13 7 13 7 21" />
+        <polyline points="7 3 7 8 15 8" />
+      </svg>
+      Salvar alterações
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="state-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <span class="state-text">Carregando horários...</span>
+  </div>
+
+  <!-- Error -->
+  <div class="state-container" *ngIf="!loading && error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"
+      class="state-icon-error">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <circle cx="12" cy="16" r="1" fill="currentColor" />
+    </svg>
+    <span class="state-text">{{ error }}</span>
+    <button class="btn-retry" (click)="loadHours()">Tentar novamente</button>
+  </div>
+
+  <!-- Content -->
+  <div class="hours-content" *ngIf="!loading && !error">
+
+    <!-- Global error -->
+    <div class="global-error" *ngIf="saveError">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <circle cx="12" cy="16" r="1" fill="currentColor" />
+      </svg>
+      {{ saveError }}
+    </div>
+
+    <!-- Days list -->
+    <div class="days-list">
+      <div class="day-card" *ngFor="let day of schedule; trackBy: trackByDay"
+        [class.day-card--closed]="!day.isOpen">
+
+        <!-- Day header -->
+        <div class="day-header">
+          <div class="day-header-left">
+            <label class="toggle-wrapper" (click)="$event.stopPropagation()">
+              <input type="checkbox" class="toggle-input" [(ngModel)]="day.isOpen"
+                (ngModelChange)="onToggleDay(day)" />
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+            <div class="day-info">
+              <span class="day-name">{{ day.label }}</span>
+              <span class="day-abbr">{{ day.abbr }}</span>
+            </div>
+          </div>
+
+          <div class="day-status">
+            <span class="status-badge status-open" *ngIf="day.isOpen">
+              <span class="status-dot"></span>
+              Aberto
+            </span>
+            <span class="status-badge status-closed" *ngIf="!day.isOpen">
+              Fechado
+            </span>
+          </div>
+        </div>
+
+        <!-- Time slots -->
+        <div class="slots-container" *ngIf="day.isOpen">
+          <div class="slot-row" *ngFor="let slot of day.slots; let i = index; trackBy: trackByIndex">
+            <div class="slot-fields">
+              <div class="time-field">
+                <label class="time-label">Abre</label>
+                <div class="time-input-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"
+                    class="time-icon">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <input class="time-input" type="time" [(ngModel)]="slot.openTime"
+                    (ngModelChange)="onSlotChange(day)" />
+                </div>
+              </div>
+              <span class="slot-separator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="14 7 19 12 14 17" />
+                </svg>
+              </span>
+              <div class="time-field">
+                <label class="time-label">Fecha</label>
+                <div class="time-input-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"
+                    class="time-icon">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <input class="time-input" type="time" [(ngModel)]="slot.closeTime"
+                    (ngModelChange)="onSlotChange(day)" />
+                </div>
+              </div>
+            </div>
+
+            <div class="slot-actions">
+              <button class="btn-remove-slot" *ngIf="day.slots.length > 1" (click)="removeSlot(day, i)"
+                title="Remover horário">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slot error -->
+          <p class="slot-error" *ngIf="day.error">{{ day.error }}</p>
+
+          <!-- Add slot -->
+          <button class="btn-add-slot" (click)="addSlot(day)" *ngIf="day.slots.length < 3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Adicionar intervalo
+          </button>
+        </div>
+
+        <!-- Closed overlay hint -->
+        <div class="closed-hint" *ngIf="!day.isOpen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          <span>Restaurante fechado neste dia</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Copy week tip -->
+    <div class="tip-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"
+        class="tip-icon">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <span class="tip-text">
+        Você pode adicionar até 3 intervalos de horário por dia (ex: almoço e jantar).
+        Dias marcados como fechados não serão enviados na requisição.
+      </span>
+    </div>
+
+  </div>
+</div>

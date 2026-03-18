@@ -1,0 +1,98 @@
+<div class="address-container">
+
+  <!-- Header -->
+  <div class="address-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h3 class="header-title">Novo Endereço</h3>
+  </div>
+
+  <div class="address-content">
+
+    <h2 class="address-question">Em qual endereço você deseja receber seu pedido?</h2>
+
+    <!-- Região (bairro selecionado) -->
+    <div class="region-box" *ngIf="selectedNeighborhood">
+      <div class="region-info">
+        <span class="region-label">Região</span>
+        <span class="region-name">{{ selectedNeighborhood.name }}</span>
+      </div>
+      <button class="btn-ver-opcoes" (click)="goBack()">Ver opções</button>
+    </div>
+
+    <!-- Rua -->
+    <div class="form-group">
+      <label class="form-label">Rua <span class="required">*</span></label>
+      <input class="form-input" type="text" [(ngModel)]="street"
+        placeholder="Avenida Brasil"/>
+    </div>
+
+    <!-- Número -->
+    <div class="form-group">
+      <label class="form-label">Número <span class="required">*</span></label>
+      <div class="number-row">
+        <input class="form-input" type="text" [(ngModel)]="number"
+          placeholder="1234" [disabled]="noNumber"/>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="noNumber" (change)="onNoNumberChange()"/>
+          <span>Sem número</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Complemento -->
+    <div class="form-group">
+      <label class="form-label">Complemento</label>
+      <input class="form-input" type="text" [(ngModel)]="complement"
+        placeholder="Casa, Apto, Sala X..."/>
+    </div>
+
+    <!-- Ponto de referência -->
+    <div class="form-group">
+      <label class="form-label">Ponto de referência</label>
+      <input class="form-input" type="text" [(ngModel)]="reference"
+        placeholder="Em frente ao..."/>
+    </div>
+
+    <!-- Bairro (bloqueado) -->
+    <div class="form-group">
+      <label class="form-label">Bairro <span class="required">*</span></label>
+      <input class="form-input" type="text"
+        [value]="selectedNeighborhood?.name ?? ''" disabled/>
+    </div>
+
+    <!-- Cidade (bloqueada — vem do bairro selecionado) -->
+    <div class="form-group">
+      <label class="form-label">Cidade <span class="required">*</span></label>
+      <input class="form-input" type="text"
+        [value]="cityName" disabled/>
+    </div>
+
+    <!-- Nome do endereço -->
+    <div class="form-group">
+      <label class="form-label">Nome do endereço</label>
+      <div class="address-name-options">
+        <button
+          *ngFor="let opt of addressNameOptions"
+          class="address-name-btn"
+          [class.active]="addressName === opt.value"
+          (click)="addressName = opt.value">
+          {{ opt.label }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="address-footer">
+    <button class="btn-confirm" [disabled]="!isValid" (click)="confirm()">
+      Confirmar endereço
+    </button>
+  </div>
+
+</div>

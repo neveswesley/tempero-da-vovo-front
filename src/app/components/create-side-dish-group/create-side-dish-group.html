@@ -1,0 +1,167 @@
+<div class="page-container">
+  <form [formGroup]="complementForm" (ngSubmit)="submitComplement()">
+    <!-- Header -->
+    <div class="page-header">
+      <button type="button" class="back-btn" (click)="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h1>Criar grupo de complementos</h1>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+      <!-- Nome do Grupo -->
+      <div class="form-group">
+        <label class="form-label">
+          Nome do Grupo<span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          class="form-input"
+          [class.invalid]="complementForm.get('name')?.touched && complementForm.get('name')?.invalid"
+          placeholder="Ex: Adicionais, Tamanho, Bebidas..."
+          formControlName="name"
+        />
+        <span
+          class="error-message"
+          *ngIf="complementForm.get('name')?.touched && complementForm.get('name')?.invalid"
+        >
+          Nome do grupo é obrigatório (2 a 50 caracteres).
+        </span>
+        <p class="helper-text">
+          Este nome aparecerá para o cliente na hora de escolher os complementos.
+        </p>
+      </div>
+
+      <!-- Grupo é obrigatório? -->
+      <div class="form-group">
+        <label class="form-label">
+          Este grupo é obrigatório ou opcional?<span class="required">*</span>
+        </label>
+        <select class="form-input" formControlName="isRequired">
+          <option value="false">Opcional - Cliente pode não escolher</option>
+          <option value="true">Obrigatório - Cliente deve escolher</option>
+        </select>
+        <p class="helper-text">
+          Se obrigatório, o cliente precisará escolher ao menos a quantidade mínima de complementos.
+        </p>
+      </div>
+
+      <!-- Quantities Section -->
+      <div class="quantities-section">
+        <h3>Quantidade de complementos</h3>
+        <div class="quantity-row">
+          <!-- Quantidade Mínima -->
+          <div class="quantity-group">
+            <label class="form-label">Quantidade mínima</label>
+            <div class="quantity-control">
+              <button 
+                type="button" 
+                class="qty-btn" 
+                (click)="decreaseMin()"
+                [disabled]="minQuantity <= 0"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <input 
+                type="text" 
+                class="qty-input" 
+                [value]="minQuantity" 
+                readonly
+              />
+              <button 
+                type="button" 
+                class="qty-btn" 
+                (click)="increaseMin()"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quantidade Máxima -->
+          <div class="quantity-group">
+            <label class="form-label">Quantidade máxima</label>
+            <div class="quantity-control">
+              <button 
+                type="button" 
+                class="qty-btn" 
+                (click)="decreaseMax()"
+                [disabled]="maxQuantity <= 0"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <input 
+                type="text" 
+                class="qty-input" 
+                [value]="maxQuantity" 
+                readonly
+              />
+              <button 
+                type="button" 
+                class="qty-btn" 
+                (click)="increaseMax()"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warning se min > max -->
+        <div
+          class="quantity-warning"
+          *ngIf="maxQuantity > 0 && minQuantity > maxQuantity"
+        >
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+          </svg>
+          Quantidade mínima não pode ser maior que a máxima.
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn-cancel" 
+          (click)="cancel()"
+          [disabled]="loading"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          class="btn-submit"
+          [disabled]="complementForm.invalid || (maxQuantity > 0 && minQuantity > maxQuantity) || loading"
+        >
+          <svg 
+            *ngIf="loading" 
+            class="spinner" 
+            viewBox="0 0 24 24" 
+            fill="none"
+          >
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span *ngIf="!loading">Criar grupo</span>
+          <span *ngIf="loading">Criando...</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

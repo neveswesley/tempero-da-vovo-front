@@ -1,0 +1,126 @@
+<!-- restaurant-profile-public.html -->
+
+<div class="pub-page" *ngIf="!loading && !error">
+
+  <!-- ── Header ──────────────────────────────────── -->
+  <div class="pub-header">
+    <div class="pub-header-top">
+      <button class="btn-back" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <span class="pub-header-title">Perfil da loja</span>
+      <button class="btn-share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pub-brand">
+      <div class="pub-logo">
+        <span class="pub-logo-letter">{{ (profile.name | slice:0:1) || 'R' }}</span>
+      </div>
+      <div class="pub-brand-info">
+        <h1 class="pub-name">{{ profile.name }}</h1>
+        <div class="pub-meta">
+          <span class="pub-status-badge" [class.pub-status-open]="isOpen" [class.pub-status-closed]="!isOpen">
+            <span class="status-dot"></span>
+            {{ statusLabel }}
+          </span>
+          <span class="pub-meta-sep">·</span>
+          <span class="pub-next-info">{{ nextOpenLabel }}</span>
+        </div>
+        <div class="pub-tags" *ngIf="profile.noMinimumOrder || profile.minimumOrderValue === 0">
+          <span class="pub-tag">Sem pedido mínimo</span>
+        </div>
+        <div class="pub-tags" *ngIf="!profile.noMinimumOrder && profile.minimumOrderValue > 0">
+          <span class="pub-tag">Pedido mínimo: {{ profile.minimumOrderValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pub-status-bar" [class.pub-status-bar--open]="isOpen" [class.pub-status-bar--closed]="!isOpen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span>{{ isOpen ? 'Aberto agora' : statusLabel }}</span>
+    </div>
+  </div>
+
+  <!-- ── Body ───────────────────────────────────── -->
+  <div class="pub-body">
+
+    <!-- Horário de Atendimento -->
+    <div class="pub-section">
+      <div class="pub-section-title">Horário de atendimento</div>
+      <div class="hours-list">
+        <div class="hours-row" *ngFor="let day of openingHours" [class.hours-row--today]="day.isToday">
+          <span class="hours-day">
+            <span class="today-marker" *ngIf="day.isToday">Hoje</span>
+            {{ day.label }}:
+          </span>
+          <span class="hours-time" *ngIf="day.isOpen">{{ day.openTime }}h às {{ day.closeTime }}h</span>
+          <span class="hours-closed" *ngIf="!day.isOpen">Fechado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formas de Pagamento -->
+    <div class="pub-section">
+      <div class="pub-section-title">Formas de pagamento</div>
+      <div class="payment-list">
+        <div class="payment-row" *ngFor="let method of enabledPaymentMethods">
+          <div class="payment-icon-wrap">
+            <img [src]="method.iconUrl" [alt]="method.name" class="payment-icon" (error)="onIconError($event, method)" />
+          </div>
+          <div class="payment-info">
+            <span class="payment-name">{{ method.name }}</span>
+            <span class="payment-type">{{ method.type }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="pub-section pub-section--address">
+      <div class="pub-section-title">Endereço</div>
+      <a class="address-row" [href]="mapsUrl" target="_blank" rel="noopener">
+        <span class="address-text">{{ addressFormatted }}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="address-arrow">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+      <div class="map-container" *ngIf="mapsEmbedUrl">
+        <iframe
+          [src]="mapsEmbedUrl"
+          width="100%"
+          height="220"
+          style="border:0"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="map-iframe">
+        </iframe>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="pub-state" *ngIf="loading">
+  <div class="pub-spinner"></div>
+</div>
+
+<!-- Error -->
+<div class="pub-state" *ngIf="!loading && error">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="color:#ef4444;opacity:.6">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="currentColor"/>
+  </svg>
+  <span class="pub-state-text">{{ error }}</span>
+  <button class="btn-retry" (click)="load()">Tentar novamente</button>
+</div>

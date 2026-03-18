@@ -1,0 +1,20 @@
+<div *ngIf="order$ | async as order; else empty">
+  <h2>Seu carrinho</h2>
+
+  <div *ngFor="let item of order.items">
+    <h3>{{ item.productName }}</h3>
+    <p>Qtd: {{ item.quantity }}</p>
+    <p>Total: R$ {{ item.total }}</p>
+
+    <div *ngFor="let sd of item.sideDishes">
+      ➕ {{ sd.name }} ({{ sd.quantity }})
+    </div>
+  </div>
+
+  <hr />
+  <strong>Total do pedido: R$ {{ order.total }}</strong>
+</div>
+
+<ng-template #empty>
+  <p>Seu carrinho está vazio 🛒</p>
+</ng-template>
