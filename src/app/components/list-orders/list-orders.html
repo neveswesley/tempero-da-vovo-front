@@ -5,7 +5,7 @@
   <div class="modal-box" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
-      <span class="modal-title">Cancelar pedido</span>
+      <span class="modal-title">Solicitar cancelamento</span>
       <button class="modal-close" (click)="closeCancelModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round" width="20" height="20">
@@ -15,15 +15,14 @@
       </button>
     </div>
 
-    <!-- tudo que pode crescer fica aqui dentro -->
     <div class="modal-scrollable">
-
       <p class="modal-desc">
-        Tem certeza que deseja cancelar o pedido <strong>#{{ orderToCancel?.orderNumber }}</strong>?
+        Deseja solicitar o cancelamento do pedido <strong>#{{ orderToCancel?.orderNumber }}</strong>?
+        O restaurante vai analisar sua solicitação.
       </p>
 
       <div class="modal-field">
-        <label class="modal-label">Motivo do cancelamento</label>
+        <label class="modal-label">Motivo da solicitação</label>
         <select class="modal-select" [(ngModel)]="cancelReason">
           <option [ngValue]="CancellationReasonType.ChangedMind">Mudei de ideia</option>
           <option [ngValue]="CancellationReasonType.WrongAddress">Endereço errado</option>
@@ -38,28 +37,23 @@
 
       <div class="modal-field">
         <label class="modal-label">
-          Descrição <span class="modal-optional">(opcional)</span>
+          Descrição <span class="modal-optional">(obrigatória)</span>
         </label>
-        <textarea class="modal-textarea" [(ngModel)]="cancelDescription" placeholder="Descreva o motivo..."
-          rows="3"></textarea>
+        <textarea class="modal-textarea" [(ngModel)]="cancelDescription"
+          placeholder="Descreva o motivo da solicitação..." rows="3"></textarea>
       </div>
-
     </div>
-    <p class="modal-error" *ngIf="cancelError">{{ cancelError }}</p>
-    <!-- fim do scrollable -->
 
-    <!-- botões ficam sempre visíveis no rodapé -->
+    <p class="modal-error" *ngIf="cancelError">{{ cancelError }}</p>
+
     <div class="modal-actions">
       <button class="btn-modal-secondary" (click)="closeCancelModal()">Voltar</button>
-      <button class="btn-modal-danger" (click)="confirmCancel()">Confirmar cancelamento</button>
+      <button class="btn-modal-danger" (click)="confirmCancel()">Solicitar cancelamento</button>
     </div>
 
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL FEEDBACK
-══════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showFeedbackModal" (click)="closeFeedbackModal()">
   <div class="modal-box feedback-box" (click)="$event.stopPropagation()">
 
@@ -76,11 +70,11 @@
     </div>
 
     <p class="feedback-title">
-      {{ feedbackSuccess ? 'Pedido cancelado!' : 'Pedido não pode ser cancelado' }}
+      {{ feedbackMessage || (feedbackSuccess ? 'Solicitação enviada ao restaurante!' : 'Não foi possível enviar a
+      solicitação') }}
     </p>
 
     <button class="btn-modal-secondary feedback-btn" (click)="closeFeedbackModal()">Fechar</button>
-
   </div>
 </div>
 
@@ -169,7 +163,7 @@
       <button class="btn-cancel"
         *ngIf="getStatus(order) === OrderStatus.PendingConfirmation || getStatus(order) === OrderStatus.Preparing"
         (click)="cancelOrder(order, $event)">
-        Cancelar pedido
+        Solicitar cancelamento
       </button>
 
       <button class="btn-delivered" *ngIf="getStatus(order) === OrderStatus.OnTheWay"
@@ -211,7 +205,7 @@
         </div>
       </div>
       <span class="status-badge" [ngClass]="'status-' + getStatus(safeOrder)">
-        {{ statusLabel[getStatus(safeOrder)] }}
+        {{ getDisplayStatusLabel(safeOrder) }}
       </span>
     </div>
   </div>

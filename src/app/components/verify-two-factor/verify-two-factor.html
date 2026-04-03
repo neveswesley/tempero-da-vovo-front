@@ -1,0 +1,22 @@
+<form (ngSubmit)="verify()" #form="ngForm">
+  <h2>Verificação em duas etapas.</h2>
+  <h3>Enviamos um código de 6 dígitos para o seu e-mail. Insira abaixo para continuar.</h3>
+
+  <div>
+    <label>Código: </label>
+    <input
+      type="text"
+      name="code"
+      [(ngModel)]="code"
+      required
+      maxlength="6"
+      placeholder="000000"
+    />
+  </div>
+
+  <button type="submit" [disabled]="form.invalid || submitted">
+    Verificar
+  </button>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+</form>

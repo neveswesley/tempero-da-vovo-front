@@ -7,6 +7,8 @@ import { Location } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { NotificationService } from '../../services/notification.service';
 import { ConfirmDeleteModalComponent } from '../../modals/confirm-delete-modal.component';
+import { CartExpiryService } from '../../services/cart-expiry.service';
+
 
 
 @Component({
@@ -28,6 +30,7 @@ export class CartComponent implements OnInit {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
+    private cartExpiryService: CartExpiryService,
     private orderService: OrderService,
     private cdr: ChangeDetectorRef,
     private productService: ProductService,
@@ -51,6 +54,8 @@ export class CartComponent implements OnInit {
       if (restaurantId && clientSessionId && !this.orderService.snapshot) {
         this.orderService.getCurrentOrder(restaurantId, clientSessionId).subscribe();
       }
+
+      this.cartExpiryService.resumeTracking();
     }
   }
 
@@ -230,6 +235,7 @@ export class CartComponent implements OnInit {
 
   advanceToPayment(): void {
     if (!this.order) return;
+    this.cartExpiryService.stopTracking();
     this.router.navigate(['/checkout']);
   }
 

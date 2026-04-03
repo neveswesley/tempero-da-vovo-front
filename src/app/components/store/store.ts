@@ -1,5 +1,3 @@
-// store.component.ts
-
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +18,7 @@ interface AddressForm {
 interface StoreForm {
   name: string;
   description: string;
-  category: string;
+  restaurantCategory: number | null;
   phone: string;
   address: AddressForm;
 }
@@ -52,7 +50,7 @@ export class StoreComponent implements OnInit {
   form: StoreForm = {
     name: '',
     description: '',
-    category: '',
+    restaurantCategory: null,
     phone: '',
     address: {
       zipCode: '',
@@ -65,20 +63,39 @@ export class StoreComponent implements OnInit {
     },
   };
 
-  categories = [
-    { value: 'brazilian', label: 'Brasileira' },
-    { value: 'pizza', label: 'Pizzaria' },
-    { value: 'hamburger', label: 'Hamburguer' },
-    { value: 'japanese', label: 'Japonesa' },
-    { value: 'arabic', label: 'Árabe' },
-    { value: 'italian', label: 'Italiana' },
-    { value: 'chinese', label: 'Chinesa' },
-    { value: 'seafood', label: 'Frutos do Mar' },
-    { value: 'vegetarian', label: 'Vegetariana' },
-    { value: 'desserts', label: 'Sobremesas' },
-    { value: 'bakery', label: 'Padaria' },
-    { value: 'snacks', label: 'Lanches' },
-    { value: 'other', label: 'Outros' },
+  restaurantCategories = [
+    { value: 1, label: 'Brasileira' },
+    { value: 2, label: 'Pizzaria' },
+    { value: 3, label: 'Hamburgueria' },
+    { value: 4, label: 'Lanchonete' },
+    { value: 5, label: 'Japonesa' },
+    { value: 6, label: 'Chinesa' },
+    { value: 7, label: 'Italiana' },
+    { value: 8, label: 'Mexicana' },
+    { value: 9, label: 'Árabe' },
+    { value: 10, label: 'Churrascaria' },
+    { value: 11, label: 'Frutos do Mar' },
+    { value: 12, label: 'Massas' },
+    { value: 13, label: 'Grelhados' },
+    { value: 14, label: 'Fast Food' },
+    { value: 15, label: 'Padaria' },
+    { value: 16, label: 'Cafeteria' },
+    { value: 17, label: 'Café da manhã' },
+    { value: 18, label: 'Saudável' },
+    { value: 19, label: 'Vegetariana' },
+    { value: 20, label: 'Vegana' },
+    { value: 21, label: 'Comida natural' },
+    { value: 22, label: 'Açaí' },
+    { value: 23, label: 'Sorveteria' },
+    { value: 24, label: 'Sobremesas' },
+    { value: 25, label: 'Doces' },
+    { value: 26, label: 'Confeitaria' },
+    { value: 27, label: 'Bebidas' },
+    { value: 28, label: 'Sucos' },
+    { value: 29, label: 'Smoothies' },
+    { value: 30, label: 'Comida regional' },
+    { value: 31, label: 'Comida caseira' },
+    { value: 32, label: 'Marmita' },
   ];
 
   constructor(
@@ -101,7 +118,7 @@ export class StoreComponent implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<any>(`/api/restaurants/${this.restaurantId}`).subscribe({
+    this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
       next: (res) => {
         this.applyResponse(res);
         this.loading = false;
@@ -118,7 +135,10 @@ export class StoreComponent implements OnInit {
   private applyResponse(res: any): void {
     this.form.name = res.name ?? '';
     this.form.description = res.description ?? '';
-    this.form.category = res.category ?? '';
+    this.form.restaurantCategory =
+      res.restaurantCategory !== null && res.restaurantCategory !== undefined
+        ? Number(res.restaurantCategory)
+        : null;
     this.form.phone = res.phone ?? '';
 
     if (res.address) {
@@ -133,7 +153,6 @@ export class StoreComponent implements OnInit {
       };
     }
 
-    // Name change restriction — 60 days
     if (res.lastNameChangedAt) {
       this.lastNameChangedAt = new Date(res.lastNameChangedAt);
       const daysSince = this.daysSince(this.lastNameChangedAt);
@@ -241,8 +260,11 @@ export class StoreComponent implements OnInit {
 
     const payload = {
       ...this.form,
-      phone: this.form.phone.replace(/\D/g, ''), // envia só dígitos
+      phone: this.form.phone.replace(/\D/g, ''),
     };
+
+    console.log(payload);
+    console.log(typeof payload.restaurantCategory, payload.restaurantCategory);
 
     this.http.put(`/api/restaurants/${this.restaurantId}`, payload).subscribe({
       next: () => {

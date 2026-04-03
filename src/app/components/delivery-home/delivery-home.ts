@@ -19,6 +19,7 @@ import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/order.models';
 import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-delivery-home',
@@ -31,6 +32,8 @@ export class DeliveryHomeComponent implements OnInit {
   categories: CategoryWithProducts[] = [];
   restaurantId: string = '';
   loading = true;
+
+  restaurantName = '';
 
   activeTab: string = 'home';
   activeCategory: string = '';
@@ -59,6 +62,7 @@ export class DeliveryHomeComponent implements OnInit {
     private productService: ProductService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private titleService: Title,
     private orderService: OrderService,
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -348,62 +352,64 @@ export class DeliveryHomeComponent implements OnInit {
   }
 
   private computeStoreStatus(openingHours: any[]): void {
-  const now = new Date();
-  const todayDow = now.getDay();
-  const todayEntry = openingHours.find(h => h.dayOfWeek === todayDow);
+    const now = new Date();
+    const todayDow = now.getDay();
+    const todayEntry = openingHours.find(h => h.dayOfWeek === todayDow);
 
-  const parseTime = (raw: string) => {
-    // suporta "HH:mm:ss" e ISO datetime "2024-01-01T10:00:00"
-    const time = raw.includes('T') ? raw.split('T')[1] : raw;
-    return time.substring(0, 5);
-  };
+    const parseTime = (raw: string) => {
+      // suporta "HH:mm:ss" e ISO datetime "2024-01-01T10:00:00"
+      const time = raw.includes('T') ? raw.split('T')[1] : raw;
+      return time.substring(0, 5);
+    };
 
-  if (todayEntry) {
-    const openStr  = parseTime(todayEntry.openTime);
-    const closeStr = parseTime(todayEntry.closeTime);
-    const [oh, om] = openStr.split(':').map(Number);
-    const [ch, cm] = closeStr.split(':').map(Number);
-    const nowMin   = now.getHours() * 60 + now.getMinutes();
-    const openMin  = oh * 60 + om;
-    const closeMin = ch * 60 + cm;
+    if (todayEntry) {
+      const openStr = parseTime(todayEntry.openTime);
+      const closeStr = parseTime(todayEntry.closeTime);
+      const [oh, om] = openStr.split(':').map(Number);
+      const [ch, cm] = closeStr.split(':').map(Number);
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const openMin = oh * 60 + om;
+      const closeMin = ch * 60 + cm;
 
-    if (nowMin >= openMin && nowMin < closeMin) {
-      this.isStoreOpen = true;
-      this.storeStatusLabel = `Loja aberta até às ${closeStr}h`;
-      return;
+      if (nowMin >= openMin && nowMin < closeMin) {
+        this.isStoreOpen = true;
+        this.storeStatusLabel = `Loja aberta até às ${closeStr}h`;
+        return;
+      }
+
+      if (nowMin < openMin) {
+        this.isStoreOpen = false;
+        this.storeStatusLabel = `Loja fechada, abre hoje às ${openStr}h`;
+        return;
+      }
     }
 
-    if (nowMin < openMin) {
-      this.isStoreOpen = false;
-      this.storeStatusLabel = `Loja fechada, abre hoje às ${openStr}h`;
-      return;
+    for (let i = 1; i <= 7; i++) {
+      const nextDow = (todayDow + i) % 7;
+      const next = openingHours.find(h => h.dayOfWeek === nextDow);
+      if (next) {
+        const label = i === 1 ? 'amanhã' : ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][nextDow];
+        const openStr = parseTime(next.openTime);
+        this.isStoreOpen = false;
+        this.storeStatusLabel = `Loja fechada, abre ${label} às ${openStr}h`;
+        return;
+      }
     }
+
+    this.isStoreOpen = false;
+    this.storeStatusLabel = 'Loja fechada';
   }
 
-  for (let i = 1; i <= 7; i++) {
-    const nextDow = (todayDow + i) % 7;
-    const next = openingHours.find(h => h.dayOfWeek === nextDow);
-    if (next) {
-      const label   = i === 1 ? 'amanhã' : ['domingo','segunda','terça','quarta','quinta','sexta','sábado'][nextDow];
-      const openStr = parseTime(next.openTime);
-      this.isStoreOpen = false;
-      this.storeStatusLabel = `Loja fechada, abre ${label} às ${openStr}h`;
-      return;
-    }
+  private loadStoreStatus(): void {
+    this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
+      next: (res) => {
+        this.restaurantName = res.name;
+        this.titleService.setTitle(`${res.name} - NvsFood`);
+        this.computeStoreStatus(res.openingHours ?? []);
+        this.cdr.detectChanges();
+      }
+    });
   }
-
-  this.isStoreOpen = false;
-  this.storeStatusLabel = 'Loja fechada';
-}
-
-private loadStoreStatus(): void {
-  this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
-    next: (res) => {
-      this.computeStoreStatus(res.openingHours ?? []);
-      this.cdr.detectChanges();
-    }
-  });
-}
 
   goHome(): void {
     const restaurantId = localStorage.getItem('currentRestaurantId');

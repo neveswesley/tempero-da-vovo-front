@@ -417,6 +417,11 @@
 .status-5 { background: #721C24; color: white; }
 .status-6 { background: #F8D7DA; color: #721C24; }
 
+.status-requested {
+  background: #fff3cd;
+  color: #856404;
+}
+
 /* ── Detail view ────────────────────────────────────────── */
 .detail-view {
   padding-bottom: 40px;

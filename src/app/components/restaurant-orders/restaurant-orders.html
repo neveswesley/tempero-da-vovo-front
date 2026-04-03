@@ -1,7 +1,7 @@
 <!-- ══════════════════════════════════════════
      MODAL CANCELAMENTO
 ══════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+<div class="modal-overlay" *ngIf="showCancelModal()" (click)="closeCancelModal()">
   <div class="modal-box" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Cancelar pedido</span>
@@ -14,39 +14,41 @@
       </button>
     </div>
     <div class="modal-scrollable">
-      <p class="modal-desc">Tem certeza que deseja cancelar o pedido <strong>#{{ orderToCancel?.orderNumber }}</strong>?
+      <p class="modal-desc">Tem certeza que deseja cancelar o pedido <strong>#{{ orderToCancel()?.orderNumber
+          }}</strong>?
       </p>
       <div class="modal-field">
         <label class="modal-label">Motivo do cancelamento</label>
-        <select class="modal-select" [(ngModel)]="cancelReason">
+        <select class="modal-select" [ngModel]="cancellationReasonType()"
+          (ngModelChange)="cancellationReasonType.set($event)">
           <optgroup label="Estoque">
-            <option [value]="CancellationReasonType.OutOfStock">Produto indisponível</option>
-            <option [value]="CancellationReasonType.IngredientUnavailable">Falta de ingrediente</option>
-            <option [value]="CancellationReasonType.MenuError">Erro no cardápio</option>
+            <option [ngValue]="CancellationReasonType.OutOfStock">Produto indisponível</option>
+            <option [ngValue]="CancellationReasonType.IngredientUnavailable">Falta de ingrediente</option>
+            <option [ngValue]="CancellationReasonType.MenuError">Erro no cardápio</option>
           </optgroup>
           <optgroup label="Operacional">
-            <option [value]="CancellationReasonType.StoreClosing">Restaurante fechando</option>
-            <option [value]="CancellationReasonType.OutOfDeliveryArea">Fora da área de entrega</option>
-            <option [value]="CancellationReasonType.NoCourierAvailable">Sem entregador disponível</option>
+            <option [ngValue]="CancellationReasonType.StoreClosing">Restaurante fechando</option>
+            <option [ngValue]="CancellationReasonType.OutOfDeliveryArea">Fora da área de entrega</option>
+            <option [ngValue]="CancellationReasonType.NoCourierAvailable">Sem entregador disponível</option>
           </optgroup>
           <optgroup label="Pagamento / Fraude">
-            <option [value]="CancellationReasonType.PaymentNotApproved">Pagamento não aprovado</option>
-            <option [value]="CancellationReasonType.FraudSuspicion">Suspeita de fraude</option>
-            <option [value]="CancellationReasonType.DuplicateOrder">Pedido duplicado</option>
+            <option [ngValue]="CancellationReasonType.PaymentNotApproved">Pagamento não aprovado</option>
+            <option [ngValue]="CancellationReasonType.FraudSuspicion">Suspeita de fraude</option>
+            <option [ngValue]="CancellationReasonType.DuplicateOrder">Pedido duplicado</option>
           </optgroup>
           <optgroup label="Outros">
-            <option [value]="CancellationReasonType.SystemError">Erro no sistema</option>
-            <option [value]="CancellationReasonType.Other">Outro</option>
+            <option [ngValue]="CancellationReasonType.SystemError">Erro no sistema</option>
+            <option [ngValue]="CancellationReasonType.Other">Outro</option>
           </optgroup>
         </select>
       </div>
       <div class="modal-field">
         <label class="modal-label">Descrição <span class="modal-optional">(opcional)</span></label>
-        <textarea class="modal-textarea" [(ngModel)]="cancelDescription" placeholder="Descreva o motivo..."
-          rows="3"></textarea>
+        <textarea class="modal-textarea" [ngModel]="cancelDescription()" (ngModelChange)="cancelDescription.set($event)"
+          placeholder="Descreva o motivo..." rows="3"></textarea>
       </div>
     </div>
-    <p class="modal-error" *ngIf="cancelError">{{ cancelError }}</p>
+    <p class="modal-error" *ngIf="cancelError()">{{ cancelError() }}</p>
     <div class="modal-actions">
       <button class="btn-modal-secondary" (click)="closeCancelModal()">Voltar</button>
       <button class="btn-modal-danger" (click)="confirmCancel()">Confirmar cancelamento</button>
@@ -57,7 +59,7 @@
 <!-- ══════════════════════════════════════════
      MODAL RECUSAR PEDIDO (PendingConfirmation)
 ══════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+<div class="modal-overlay" *ngIf="showRejectModal()" (click)="closeRejectModal()">
   <div class="modal-box" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Recusar pedido</span>
@@ -71,11 +73,11 @@
     </div>
     <div class="modal-scrollable">
       <p class="modal-desc">Tem certeza que deseja <strong>recusar</strong> o pedido <strong>#{{
-          orderToReject?.orderNumber }}</strong>?
+          orderToReject()?.orderNumber }}</strong>?
       </p>
       <div class="modal-field">
         <label class="modal-label">Motivo da recusa</label>
-        <select class="modal-select" [(ngModel)]="rejectReason">
+        <select class="modal-select" [ngModel]="rejectReason()" (ngModelChange)="rejectReason.set($event)">
           <optgroup label="Estoque">
             <option [value]="CancellationReasonType.OutOfStock">Produto indisponível</option>
             <option [value]="CancellationReasonType.IngredientUnavailable">Falta de ingrediente</option>
@@ -99,11 +101,11 @@
       </div>
       <div class="modal-field">
         <label class="modal-label">Descrição <span class="modal-optional">(opcional)</span></label>
-        <textarea class="modal-textarea" [(ngModel)]="rejectDescription" placeholder="Descreva o motivo..."
-          rows="3"></textarea>
+        <textarea class="modal-textarea" [ngModel]="rejectDescription()" (ngModelChange)="rejectDescription.set($event)"
+          placeholder="Descreva o motivo..." rows="3"></textarea>
       </div>
     </div>
-    <p class="modal-error" *ngIf="rejectError">{{ rejectError }}</p>
+    <p class="modal-error" *ngIf="rejectError()">{{ rejectError() }}</p>
     <div class="modal-actions">
       <button class="btn-modal-secondary" (click)="closeRejectModal()">Voltar</button>
       <button class="btn-modal-danger" (click)="confirmReject()">Confirmar recusa</button>
@@ -112,22 +114,57 @@
 </div>
 
 <!-- ══════════════════════════════════════════
+     MODAL MANTER PEDIDO (recusar cancelamento)
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showRejectCancelModal()" (click)="closeRejectCancelModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Manter pedido</span>
+      <button class="modal-close" (click)="closeRejectCancelModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" width="20" height="20">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-scrollable">
+      <p class="modal-desc">
+        Informe o motivo pelo qual você está <strong>recusando o cancelamento</strong> do pedido
+        <strong>#{{ orderToCancellationAction()?.orderNumber }}</strong>.
+      </p>
+      <div class="modal-field">
+        <label class="modal-label">Motivo <span class="modal-optional">(opcional)</span></label>
+        <textarea class="modal-textarea" [ngModel]="rejectCancelReason()"
+          (ngModelChange)="rejectCancelReason.set($event)" placeholder="Ex: Pedido já está em preparo..."
+          rows="3"></textarea>
+      </div>
+    </div>
+    <p class="modal-error" *ngIf="rejectCancelError()">{{ rejectCancelError() }}</p>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeRejectCancelModal()">Voltar</button>
+      <button class="btn-modal-primary" (click)="confirmDenyCancellation()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      MODAL FEEDBACK
 ══════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="showFeedbackModal" (click)="closeFeedbackModal()">
+<div class="modal-overlay" *ngIf="showFeedbackModal()" (click)="closeFeedbackModal()">
   <div class="modal-box feedback-box" (click)="$event.stopPropagation()">
-    <div class="feedback-icon" [class.feedback-success]="feedbackSuccess" [class.feedback-error]="!feedbackSuccess">
-      <svg *ngIf="feedbackSuccess" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+    <div class="feedback-icon" [class.feedback-success]="feedbackSuccess()" [class.feedback-error]="!feedbackSuccess()">
+      <svg *ngIf="feedbackSuccess()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
         <polyline points="20 6 9 17 4 12" />
       </svg>
-      <svg *ngIf="!feedbackSuccess" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      <svg *ngIf="!feedbackSuccess()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
         <line x1="18" y1="6" x2="6" y2="18" />
         <line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     </div>
-    <p class="feedback-title">{{ feedbackSuccess ? 'Pedido cancelado!' : 'Pedido não pode ser cancelado' }}</p>
+    <p class="feedback-title">{{ feedbackSuccess() ? 'Pedido cancelado!' : 'Pedido não pode ser cancelado' }}</p>
     <button class="btn-modal-secondary feedback-btn" (click)="closeFeedbackModal()">Fechar</button>
   </div>
 </div>
@@ -136,20 +173,13 @@
      SHELL
 ══════════════════════════════════════════ -->
 <div class="shell">
-
-  <!-- ── Main ── -->
   <main class="main">
-
-    <!-- Conteúdo: lista + detalhe -->
     <div class="content-area">
 
-      <!-- ══════════════════════════════════════════
-           LISTA DE PEDIDOS
-      ══════════════════════════════════════════ -->
       <div class="orders-list">
 
         <div class="orders-welcome">
-          <h2>Bem vindo, Tempero da Vovó</h2>
+          <h2>Bem vindo, {{ restaurantName() }}</h2>
           <p>{{ todayLabel }}</p>
         </div>
 
@@ -160,18 +190,19 @@
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
             </svg>
-            <input class="search-input" type="text" placeholder="Buscar pedido..." [(ngModel)]="searchQuery"
-              (input)="onSearch()" />
+            <input class="search-input" type="text" placeholder="Buscar pedido..." [ngModel]="searchQuery()"
+              (ngModelChange)="onSearch($event)" />
           </div>
           <div class="filter-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
-            <select class="filter-select" [(ngModel)]="statusFilter" (change)="onFilter()">
+            <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="onFilter($event)">
               <option value="">Todos</option>
               <option [value]="OrderStatus.PendingConfirmation">Novos</option>
               <option [value]="OrderStatus.Preparing">Em preparo</option>
               <option [value]="OrderStatus.OnTheWay">Em rota</option>
+              <option [value]="OrderStatus.CancellationRequested">Solicitações</option>
               <option [value]="OrderStatus.Ready">Concluídos</option>
               <option [value]="OrderStatus.Canceled">Cancelados</option>
             </select>
@@ -179,7 +210,7 @@
         </div>
 
         <!-- ── Pedidos Novos ── -->
-        <div class="status-group" *ngIf="getColumnOrders(OrderStatus.PendingConfirmation).length > 0">
+        <div class="status-group" *ngIf="pendingCards().length > 0">
           <div class="status-group-header" (click)="toggleGroup('new')" style="cursor:pointer">
             <div class="status-group-left">
               <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('new')" viewBox="0 0 24 24" fill="none"
@@ -188,34 +219,34 @@
               </svg>
               <span>Pedidos novos</span>
             </div>
-            <span class="status-group-count">{{ getColumnOrders(OrderStatus.PendingConfirmation).length }}</span>
+            <span class="status-group-count">{{ pendingCards().length }}</span>
           </div>
+
           <ng-container *ngIf="!isGroupCollapsed('new')">
-            <div class="order-card"
-              *ngFor="let order of getColumnOrders(OrderStatus.PendingConfirmation); trackBy: trackByOrderId"
-              [class.selected]="selectedOrder?.id === order.id" (click)="selectOrder(order)">
+            <div class="order-card" *ngFor="let card of pendingCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
               <div class="card-top-row">
-                <span class="card-num">#{{ order.orderNumber }}</span>
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
                 <span class="card-sep">•</span>
-                <span class="card-client">{{ abbreviateName(order.customerName) || 'Cliente' }}</span>
-                <!-- Countdown no lugar da hora -->
-                <span class="card-time-right card-countdown" [ngClass]="getAcceptTimerClass(order)">
-                  ⏱ {{ getAcceptCountdown(order) }}
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right card-countdown" [ngClass]="getAcceptTimerClass(card.order)">
+                  ⏱ {{ getAcceptCountdown(card.order) }}
                 </span>
               </div>
-              <!-- Status badge com background -->
+
               <div class="card-order-status">
-                <span class="card-status-badge card-status-pending">{{ getStatusLabel(order.status) }}</span>
+                <span class="card-status-badge card-status-pending">{{ card.statusLabel }}</span>
               </div>
+
               <div class="card-actions-row">
-                <button class="btn-card-action btn-accept" (click)="advanceStatus(order, $event)">Aceitar</button>
+                <button class="btn-card-action btn-accept" (click)="advanceStatus(card.order, $event)">Aceitar</button>
               </div>
             </div>
           </ng-container>
         </div>
 
         <!-- ── Em Preparo ── -->
-        <div class="status-group" *ngIf="getColumnOrders(OrderStatus.Preparing).length > 0">
+        <div class="status-group" *ngIf="preparingCards().length > 0">
           <div class="status-group-header" (click)="toggleGroup('preparing')" style="cursor:pointer">
             <div class="status-group-left">
               <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('preparing')" viewBox="0 0 24 24" fill="none"
@@ -224,34 +255,36 @@
               </svg>
               <span>Em preparo</span>
             </div>
-            <span class="status-group-count">{{ getColumnOrders(OrderStatus.Preparing).length }}</span>
+            <span class="status-group-count">{{ preparingCards().length }}</span>
           </div>
+
           <ng-container *ngIf="!isGroupCollapsed('preparing')">
-            <div class="order-card"
-              *ngFor="let order of getColumnOrders(OrderStatus.Preparing); trackBy: trackByOrderId"
-              [class.selected]="selectedOrder?.id === order.id" (click)="selectOrder(order)">
+            <div class="order-card" *ngFor="let card of preparingCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
               <div class="card-top-row">
-                <span class="card-num">#{{ order.orderNumber }}</span>
-                <span class="card-client">{{ abbreviateName(order.customerName) || 'Cliente' }}</span>
-                <span class="card-time-right">{{ formatTimeOnly(order.pendingConfirmationAt) }}</span>
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right">{{ card.timeOnly }}</span>
               </div>
-              <!-- Apenas "Prepare em até X min" — sem badge de status -->
+
               <div class="card-prepare-label">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                {{ getPrepareUntilLabel(order) }}
+                {{ getPrepareUntilLabel(card.order) }}
               </div>
+
               <div class="card-actions-row">
-                <button class="btn-card-action btn-dispatch" (click)="advanceStatus(order, $event)">Despachar</button>
+                <button class="btn-card-action btn-dispatch"
+                  (click)="advanceStatus(card.order, $event)">Despachar</button>
               </div>
             </div>
           </ng-container>
         </div>
 
         <!-- ── Em Rota ── -->
-        <div class="status-group" *ngIf="getColumnOrders(OrderStatus.OnTheWay).length > 0">
+        <div class="status-group" *ngIf="onTheWayCards().length > 0">
           <div class="status-group-header" (click)="toggleGroup('onway')" style="cursor:pointer">
             <div class="status-group-left">
               <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('onway')" viewBox="0 0 24 24" fill="none"
@@ -260,30 +293,71 @@
               </svg>
               <span>Em rota</span>
             </div>
-            <span class="status-group-count">{{ getColumnOrders(OrderStatus.OnTheWay).length }}</span>
+            <span class="status-group-count">{{ onTheWayCards().length }}</span>
           </div>
+
           <ng-container *ngIf="!isGroupCollapsed('onway')">
-            <div class="order-card" *ngFor="let order of getColumnOrders(OrderStatus.OnTheWay); trackBy: trackByOrderId"
-              [class.selected]="selectedOrder?.id === order.id" (click)="selectOrder(order)">
+            <div class="order-card" *ngFor="let card of onTheWayCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
               <div class="card-top-row">
-                <span class="card-num">#{{ order.orderNumber }}</span>
-                <span class="card-client">{{ abbreviateName(order.customerName) || 'Cliente' }}</span>
-                <span class="card-time-right">{{ formatTimeOnly(order.pendingConfirmationAt) }}</span>
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right">{{ card.timeOnly }}</span>
               </div>
-              <!-- Há quanto tempo foi despachado — sempre exibe para pedidos em rota -->
+
               <div class="card-dispatched-ago">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                {{ getDispatchedAgo(order) }}
+                {{ getDispatchedAgo(card.order) }}
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- ── Solicitações ── -->
+        <div class="status-group" *ngIf="cancellationRequestCards().length > 0">
+          <div class="status-group-header" (click)="toggleGroup('requests')" style="cursor:pointer">
+            <div class="status-group-left">
+              <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('requests')" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" width="12" height="12">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+              <span>Solicitações</span>
+            </div>
+            <span class="status-group-count status-group-count--alert">
+              {{ cancellationRequestCards().length }}
+            </span>
+          </div>
+
+          <ng-container *ngIf="!isGroupCollapsed('requests')">
+            <div class="order-card card-request"
+              *ngFor="let card of cancellationRequestCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
+              <div class="card-top-row">
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
+                <span class="card-sep">•</span>
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right">{{ card.timeOnly }}</span>
+              </div>
+
+              <div class="card-order-status">
+                <span class="card-status-badge card-status-request">Cancelamento solicitado</span>
+              </div>
+
+              <div class="card-actions-row">
+                <button class="btn-card-action btn-deny-cancel"
+                  (click)="openRejectCancelModal(card.order, $event)">Manter pedido</button>
+                <button class="btn-card-action btn-approve-cancel"
+                  (click)="approveCancellation(card.order, $event)">Aceitar cancelamento</button>
               </div>
             </div>
           </ng-container>
         </div>
 
         <!-- ── Concluídos ── -->
-        <div class="status-group" *ngIf="getColumnOrders(OrderStatus.Ready).length > 0">
+        <div class="status-group" *ngIf="readyCards().length > 0">
           <div class="status-group-header" (click)="toggleGroup('done')" style="cursor:pointer">
             <div class="status-group-left">
               <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('done')" viewBox="0 0 24 24" fill="none"
@@ -292,16 +366,18 @@
               </svg>
               <span>Concluídos</span>
             </div>
-            <span class="status-group-count">{{ getColumnOrders(OrderStatus.Ready).length }}</span>
+            <span class="status-group-count">{{ readyCards().length }}</span>
           </div>
+
           <ng-container *ngIf="!isGroupCollapsed('done')">
-            <div class="order-card" *ngFor="let order of getColumnOrders(OrderStatus.Ready); trackBy: trackByOrderId"
-              [class.selected]="selectedOrder?.id === order.id" (click)="selectOrder(order)">
+            <div class="order-card" *ngFor="let card of readyCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
               <div class="card-top-row">
-                <span class="card-num">#{{ order.orderNumber }}</span>
-                <span class="card-client">{{ abbreviateName(order.customerName) || 'Cliente' }}</span>
-                <span class="card-time-right">{{ formatTimeOnly(order.pendingConfirmationAt) }}</span>
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right">{{ card.timeOnly }}</span>
               </div>
+
               <div class="card-concluded">
                 ✔️ Pedido concluído
               </div>
@@ -310,7 +386,7 @@
         </div>
 
         <!-- ── Cancelados ── -->
-        <div class="status-group" *ngIf="getColumnOrders(OrderStatus.Canceled).length > 0">
+        <div class="status-group" *ngIf="canceledCards().length > 0">
           <div class="status-group-header" (click)="toggleGroup('canceled')" style="cursor:pointer">
             <div class="status-group-left">
               <svg class="group-arrow" [class.collapsed]="isGroupCollapsed('canceled')" viewBox="0 0 24 24" fill="none"
@@ -319,24 +395,24 @@
               </svg>
               <span>Cancelados</span>
             </div>
-            <span class="status-group-count">{{ getColumnOrders(OrderStatus.Canceled).length }}</span>
+            <span class="status-group-count">{{ canceledCards().length }}</span>
           </div>
+
           <ng-container *ngIf="!isGroupCollapsed('canceled')">
-            <div class="order-card card-canceled"
-              *ngFor="let order of getColumnOrders(OrderStatus.Canceled); trackBy: trackByOrderId"
-              [class.selected]="selectedOrder?.id === order.id" (click)="selectOrder(order)">
+            <div class="order-card card-canceled" *ngFor="let card of canceledCards(); trackBy: trackByCardOrderId"
+              [class.selected]="selectedOrder()?.id === card.order.id" (click)="selectOrder(card.order)">
               <div class="card-top-row">
-                <span class="card-num">#{{ order.orderNumber }}</span>
-                <span class="card-client">{{ abbreviateName(order.customerName) || 'Cliente' }}</span>
-                <span class="card-time-right">{{ formatTimeOnly(order.pendingConfirmationAt) }}</span>
+                <span class="card-num">#{{ card.order.orderNumber }}</span>
+                <span class="card-client">{{ card.customerShortName }}</span>
+                <span class="card-time-right">{{ card.timeOnly }}</span>
               </div>
+
               <div class="card-order-status">
-                <span class="card-status-badge card-status-canceled">{{ getStatusLabel(order.status) }}</span>
+                <span class="card-status-badge card-status-canceled">{{ card.statusLabel }}</span>
               </div>
             </div>
           </ng-container>
         </div>
-
         <!-- Resumo de vendas -->
         <div class="sales-summary">
           <div class="sales-summary-toggle">
@@ -345,7 +421,7 @@
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </div>
-          <span class="sales-summary-sub">{{ orders.length }} pedidos no total</span>
+          <span class="sales-summary-sub">{{ orders().length }} pedidos no total</span>
         </div>
 
       </div>
@@ -354,10 +430,9 @@
       <!-- ══════════════════════════════════════════
            PAINEL DE DETALHES
       ══════════════════════════════════════════ -->
-      <div class="detail-panel" [class.mobile-open]="!!selectedOrder">
+      <div class="detail-panel" [class.mobile-open]="!!selectedOrder()">
 
-        <!-- Estado vazio -->
-        <div class="detail-empty" *ngIf="!selectedOrder">
+        <div class="detail-empty" *ngIf="!selectedOrder()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
             <rect x="9" y="3" width="6" height="4" rx="1" />
@@ -366,19 +441,17 @@
           <span>Selecione um pedido para ver os detalhes</span>
         </div>
 
-        <ng-container *ngIf="selectedOrder">
+        <ng-container *ngIf="selectedOrder() as order">
           <div class="detail-inner">
 
-            <!-- ── Header ── -->
             <div class="detail-header">
-
               <div class="dh-row1">
                 <div class="dh-left">
-                  <span class="dh-order-box">#{{ selectedOrder.orderNumber }}</span>
-                  <div class="card-customer-name">{{ selectedOrder.customerName || 'Cliente' }}</div>
+                  <span class="dh-order-box">#{{ order.orderNumber }}</span>
+                  <div class="card-customer-name">{{ order.customerName || 'Cliente' }}</div>
                 </div>
                 <div class="dh-right">
-                  <button class="panel-close" (click)="selectedOrder = null">
+                  <button class="panel-close" (click)="selectedOrderId.set(null)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                       <line x1="18" y1="6" x2="6" y2="18" />
                       <line x1="6" y1="6" x2="18" y2="18" />
@@ -389,16 +462,15 @@
 
               <div class="dh-info-bar">
                 <span class="dh-info-item">
-                  Feito às <strong>{{ formatTimeOnly(selectedOrder.pendingConfirmationAt ?? selectedOrder.createdAt)
-                    }}</strong>
+                  Feito às <strong>{{ formatTimeOnly(order.pendingConfirmationAt ?? order.createdAt) }}</strong>
                 </span>
-                <span class="dh-info-item" *ngIf="selectedOrder.estimatedDeliveryTimeInMinutes > 0">
+                <span class="dh-info-item" *ngIf="order.estimatedDeliveryTimeInMinutes > 0">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  {{ selectedOrder.deliveryMode === DeliveryMode.Pickup ? 'Pronto em' : 'Entrega prevista' }}:
-                  <strong>{{ getEstimatedDeliveryWindow(selectedOrder) }}</strong>
+                  {{ order.deliveryMode === DeliveryMode.Pickup ? 'Pronto em' : 'Entrega prevista' }}:
+                  <strong>{{ getEstimatedDeliveryWindow(order) }}</strong>
                 </span>
                 <span class="dh-info-item">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
@@ -407,22 +479,20 @@
                     <path d="M23 21v-2a4 4 0 00-3-3.87" />
                     <path d="M16 3.13a4 4 0 010 7.75" />
                   </svg>
-                  {{ getOrderRank(selectedOrder) }}º pedido
+                  {{ getOrderRank(order) }}º pedido
                 </span>
-                <a class="dh-info-item dh-info-link" *ngIf="selectedOrder.customerPhone"
-                  [href]="'https://wa.me/55' + selectedOrder.customerPhone.replace(/\D/g, '')" target="_blank"
+                <a class="dh-info-item dh-info-link" *ngIf="order.customerPhone"
+                  [href]="'https://wa.me/55' + order.customerPhone.replace(/\D/g, '')" target="_blank"
                   rel="noopener noreferrer">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                     <path
                       d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
                   </svg>
-                  {{ selectedOrder.customerPhone }}
+                  {{ order.customerPhone }}
                 </a>
               </div>
             </div>
-            <!-- /detail-header -->
 
-            <!-- ── Body (scrollável) ── -->
             <div class="detail-body">
 
               <!-- Status timeline -->
@@ -430,18 +500,18 @@
                 <div class="timeline-toggle-bar" (click)="toggleTimeline()">
                   <span class="tl-toggle-label">Status do pedido</span>
                   <div class="tl-toggle-right">
-                    <span class="status-badge" [ngClass]="'status-' + getStatus(selectedOrder)">
-                      {{ statusLabel[getStatus(selectedOrder)] }}
+                    <span class="status-badge" [ngClass]="'status-' + getStatus(order)">
+                      {{ statusLabel[getStatus(order)] }}
                     </span>
-                    <svg class="tl-toggle-arrow" [class.open]="!timelineCollapsed" viewBox="0 0 24 24" fill="none"
+                    <svg class="tl-toggle-arrow" [class.open]="!timelineCollapsed()" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2.5" width="15" height="15">
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </div>
                 </div>
-                <div class="timeline-track-wrap" *ngIf="!timelineCollapsed">
+                <div class="timeline-track-wrap" *ngIf="!timelineCollapsed()">
                   <div class="timeline-track">
-                    <ng-container *ngFor="let event of getTimeline(selectedOrder); let i = index; let last = last">
+                    <ng-container *ngFor="let event of getTimeline(order); let i = index; let last = last">
                       <div class="tl-step" [class.done]="event.done" [class.active]="event.active">
                         <div class="tl-dot"></div>
                         <div class="tl-below">
@@ -455,10 +525,9 @@
                 </div>
               </div>
 
-              <!-- Endereço de entrega -->
-              <div class="detail-section" *ngIf="selectedOrder.deliveryMode === DeliveryMode.Delivery">
+              <!-- Endereço -->
+              <div class="detail-section" *ngIf="order.deliveryMode === DeliveryMode.Delivery">
                 <div class="section-label">Endereço de entrega</div>
-
                 <div class="addr-block">
                   <div class="addr-pin">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -466,49 +535,37 @@
                       <circle cx="12" cy="10" r="3" />
                     </svg>
                   </div>
-
                   <div class="addr-text">
-
-                    <div class="addr-line" *ngIf="selectedOrder.street">
-                      <strong>Endereço:</strong>
-                      R. {{ selectedOrder.street }}, nº {{ selectedOrder.number }}
+                    <div class="addr-line" *ngIf="order.street">
+                      <strong>Endereço:</strong> R. {{ order.street }}, nº {{ order.number }}
                     </div>
-
-                    <div class="addr-line" *ngIf="selectedOrder.neighborhood">
-                      <strong>Bairro:</strong>
-                      {{ selectedOrder.neighborhood }}
+                    <div class="addr-line" *ngIf="order.neighborhood">
+                      <strong>Bairro:</strong> {{ order.neighborhood }}
                     </div>
-
-                    <div class="addr-line" *ngIf="selectedOrder.city">
-                      <strong>Cidade:</strong>
-                      {{ selectedOrder.city }}/RJ
+                    <div class="addr-line" *ngIf="order.city">
+                      <strong>Cidade:</strong> {{ order.city }}/RJ
                     </div>
-
-                    <div class="addr-line" *ngIf="selectedOrder.complement">
-                      <strong>Complemento:</strong>
-                      {{ selectedOrder.complement }}
+                    <div class="addr-line" *ngIf="order.complement">
+                      <strong>Complemento:</strong> {{ order.complement }}
                     </div>
-
-                    <div class="addr-line" *ngIf="selectedOrder.reference">
-                      <strong>Referência:</strong>
-                      {{ selectedOrder.reference }}
+                    <div class="addr-line" *ngIf="order.reference">
+                      <strong>Referência:</strong> {{ order.reference }}
                     </div>
-
                   </div>
                 </div>
               </div>
 
               <!-- Retirada -->
-              <div class="detail-section" *ngIf="selectedOrder.deliveryMode === DeliveryMode.Pickup">
+              <div class="detail-section" *ngIf="order.deliveryMode === DeliveryMode.Pickup">
                 <div class="section-label">Forma de entrega</div>
                 <div class="info-row">🏪 Retirada no local</div>
               </div>
 
-              <!-- Itens do pedido -->
+              <!-- Itens -->
               <div class="detail-section">
                 <div class="section-label">Itens do pedido</div>
                 <div class="items-white-card">
-                  <div class="item-ifood" *ngFor="let item of selectedOrder.items; trackBy: trackByItemId">
+                  <div class="item-ifood" *ngFor="let item of order.items; trackBy: trackByItemId">
                     <div class="item-ifood-img">
                       <div class="item-ifood-img-bg">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22"
@@ -528,7 +585,6 @@
                       </div>
                       <div class="item-ifood-obs" *ngIf="item.observation">{{ item.observation }}</div>
                     </div>
-                    <!-- Coluna de preços alinhada à direita -->
                     <div class="item-ifood-price-col">
                       <div class="item-ifood-price">{{ formatCurrency(item.total) }}</div>
                       <div class="item-side-prices" *ngIf="item.sideDishes && item.sideDishes.length > 0">
@@ -544,22 +600,20 @@
               <!-- Totais -->
               <div class="totals-section">
                 <div class="total-row">
-                  <span>Subtotal</span><span>{{ formatCurrency(selectedOrder.subTotal) }}</span>
+                  <span>Subtotal</span><span>{{ formatCurrency(order.subTotal) }}</span>
                 </div>
-                <div class="total-row" *ngIf="selectedOrder.deliveryFee">
-                  <span>Taxa de entrega</span><span>{{ formatCurrency(selectedOrder.deliveryFee) }}</span>
+                <div class="total-row" *ngIf="order.deliveryFee">
+                  <span>Taxa de entrega</span><span>{{ formatCurrency(order.deliveryFee) }}</span>
                 </div>
                 <div class="total-row total-main">
-                  <span>Total</span><span>{{ formatCurrency(selectedOrder.total) }}</span>
+                  <span>Total</span><span>{{ formatCurrency(order.total) }}</span>
                 </div>
               </div>
 
               <!-- Pagamento -->
-              <div class="detail-section" *ngIf="selectedOrder.payment">
+              <div class="detail-section" *ngIf="order.payment">
                 <div class="section-label">Forma de pagamento</div>
-
-                <!-- DINHEIRO -->
-                <ng-container *ngIf="selectedOrder.payment.paymentWay === PaymentWay.Cash">
+                <ng-container *ngIf="order.payment.paymentWay === PaymentWay.Cash">
                   <div class="payment-method-row">
                     <svg class="pay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <circle cx="12" cy="12" r="9" />
@@ -569,15 +623,13 @@
                   </div>
                   <div class="payment-note">
                     O pagamento será feito na entrega. Valor para receber em dinheiro:
-                    <strong>{{ formatCurrency(selectedOrder.payment.amountPaid || selectedOrder.total) }}</strong>
+                    <strong>{{ formatCurrency(order.payment.amountPaid || order.total) }}</strong>
                   </div>
-                  <div class="payment-change" *ngIf="selectedOrder.payment.change != null">
-                    Troco a devolver: <strong>{{ formatCurrency(selectedOrder.payment.change) }}</strong>
+                  <div class="payment-change" *ngIf="order.payment.change != null">
+                    Troco a devolver: <strong>{{ formatCurrency(order.payment.change) }}</strong>
                   </div>
                 </ng-container>
-
-                <!-- CARTÃO -->
-                <ng-container *ngIf="selectedOrder.payment.paymentWay === PaymentWay.Card">
+                <ng-container *ngIf="order.payment.paymentWay === PaymentWay.Card">
                   <div class="payment-method-row">
                     <svg class="pay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -587,12 +639,10 @@
                   </div>
                   <div class="payment-note">
                     O pagamento será feito em cartão. Lembre-se de levar a maquininha.
-                    Valor para receber: <strong>{{ formatCurrency(selectedOrder.total) }}</strong>
+                    Valor para receber: <strong>{{ formatCurrency(order.total) }}</strong>
                   </div>
                 </ng-container>
-
-                <!-- PIX -->
-                <ng-container *ngIf="selectedOrder.payment.paymentWay === PaymentWay.Pix">
+                <ng-container *ngIf="order.payment.paymentWay === PaymentWay.Pix">
                   <div class="payment-pix-note">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15"
                       height="15">
@@ -606,21 +656,16 @@
             </div>
             <!-- /detail-body -->
 
-            <!-- ── Ações fixas no fundo ── -->
-
-            <!-- CASO: Pedido aguardando confirmação → Aceitar + Recusar -->
-            <ng-container *ngIf="selectedOrder.status === OrderStatus.PendingConfirmation">
+            <!-- Ações -->
+            <ng-container *ngIf="order.status === OrderStatus.PendingConfirmation">
               <div class="detail-actions">
-                <button class="btn-reject-detail" (click)="rejectOrder(selectedOrder)">
-                  Recusar pedido
-                </button>
+                <button class="btn-reject-detail" (click)="rejectOrder(order)">Recusar pedido</button>
               </div>
             </ng-container>
 
-            <!-- CASO: Pedidos em outros status (Preparing, OnTheWay) → Imprimir + Cancelar + Avançar -->
-            <ng-container *ngIf="selectedOrder.status !== OrderStatus.PendingConfirmation">
+            <ng-container *ngIf="order.status !== OrderStatus.PendingConfirmation">
               <div class="detail-actions">
-                <button class="btn-print" (click)="printOrder(selectedOrder)">
+                <button class="btn-print" (click)="printOrder(order)">
                   <svg class="btn-print-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     width="15" height="15">
                     <polyline points="6 9 6 2 18 2 18 9" />
@@ -629,24 +674,22 @@
                   </svg>
                 </button>
                 <button class="btn-cancel-detail"
-                  *ngIf="getStatus(selectedOrder) !== OrderStatus.Ready && getStatus(selectedOrder) !== OrderStatus.Canceled"
-                  (click)="cancelOrder(selectedOrder)">
+                  *ngIf="getStatus(order) !== OrderStatus.Ready && getStatus(order) !== OrderStatus.Canceled"
+                  (click)="cancelOrder(order)">
                   Cancelar pedido
                 </button>
                 <button class="btn-cancel-detail btn-cancel-disabled" disabled
-                  *ngIf="getStatus(selectedOrder) === OrderStatus.Ready || getStatus(selectedOrder) === OrderStatus.Canceled">
+                  *ngIf="getStatus(order) === OrderStatus.Ready || getStatus(order) === OrderStatus.Canceled">
                   Cancelar pedido
                 </button>
               </div>
             </ng-container>
 
-          </div><!-- /detail-inner -->
-
+          </div>
         </ng-container>
       </div>
       <!-- /detail-panel -->
 
     </div>
-    <!-- /content-area -->
   </main>
 </div>

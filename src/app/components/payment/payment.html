@@ -1,0 +1,119 @@
+<!-- ══════════════════════════════════════════
+     MODAL — CONFIRMAR SALVAMENTO
+══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showSaveModal" (click)="closeSaveModal()">
+  <div class="modal-box modal-box-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Salvar alterações</span>
+    </div>
+    <div class="modal-scrollable">
+      <p class="modal-desc">
+        Tem certeza que deseja atualizar as formas de pagamento?
+        As informações serão atualizadas imediatamente para os clientes.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-secondary" (click)="closeSaveModal()">Cancelar</button>
+      <button class="btn-modal-primary" (click)="confirmSave()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE CONTENT
+══════════════════════════════════════════ -->
+<div class="payment-page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title-group">
+      <h1 class="topbar-title">Formas de <span class="topbar-highlight">Pagamento</span></h1>
+      <span class="topbar-sub">Selecione os métodos aceitos no seu restaurante</span>
+    </div>
+    <button class="btn-save" (click)="openSaveModal()" [disabled]="saving || loading || selectedCount === 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+      Salvar alterações
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="state-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <span class="state-text">Carregando formas de pagamento...</span>
+  </div>
+
+  <!-- Error -->
+  <div class="state-container" *ngIf="!loading && error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"
+      class="state-icon-error">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <circle cx="12" cy="16" r="1" fill="currentColor"/>
+    </svg>
+    <span class="state-text">{{ error }}</span>
+    <button class="btn-retry" (click)="load()">Tentar novamente</button>
+  </div>
+
+  <!-- Content -->
+  <div class="payment-content" *ngIf="!loading && !error">
+
+    <!-- Global error -->
+    <div class="global-error" *ngIf="saveError">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <circle cx="12" cy="16" r="1" fill="currentColor"/>
+      </svg>
+      {{ saveError }}
+    </div>
+
+    <!-- ── Métodos de pagamento ─────────────────── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+        <div class="section-info">
+          <span class="section-title">Métodos aceitos</span>
+          <span class="section-sub">{{ selectedCount }} de {{ paymentMethods.length }} selecionados</span>
+        </div>
+      </div>
+
+      <div class="section-body">
+        <div
+          class="payment-card"
+          *ngFor="let method of paymentMethods"
+          [class.payment-card--active]="method.selected"
+          (click)="toggle(method)"
+        >
+          <div class="payment-card-icon">
+            <span>{{ method.emoji }}</span>
+          </div>
+          <div class="payment-card-info">
+            <span class="payment-card-name">{{ method.name }}</span>
+            <span class="payment-card-type">{{ method.type }}</span>
+          </div>
+          <div class="check-circle" [class.check-circle--on]="method.selected">
+            <svg *ngIf="method.selected" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" width="11" height="11">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </div>
+
+        <p class="selection-hint" *ngIf="selectedCount === 0">
+          ⚠ Selecione ao menos uma forma de pagamento para salvar.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>

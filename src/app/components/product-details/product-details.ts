@@ -6,6 +6,9 @@ import { ProductService } from '../../services/product.service';
 import { AddItemToOrderRequest } from '../../models/product.model';
 import { OrderService } from '../../services/order.service';
 import { NotificationService } from '../../services/notification.service';
+import { CartExpiryService } from '../../services/cart-expiry.service';
+import { HttpClient } from '@angular/common/http';
+
 
 interface SideDish {
   id: string;
@@ -56,6 +59,8 @@ export class ProductDetailsComponent implements OnInit {
 
   restaurantId: string = '';
 
+  isStoreOpen = false;
+
   expandedGroups: Set<string> = new Set();
 
   editMode: boolean = false;
@@ -70,12 +75,15 @@ export class ProductDetailsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private productService: ProductService,
     private orderService: OrderService,
+    private cartExpiryService: CartExpiryService,
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
-  ) {}
+  ) { }
 
   ngOnInit() {
     const productId = this.route.snapshot.paramMap.get('id');
     this.restaurantId = this.route.snapshot.paramMap.get('restaurantId') ?? '';
+    this.checkStoreOpen();
 
     if (!this.restaurantId && isPlatformBrowser(this.platformId)) {
       this.restaurantId = localStorage.getItem('currentRestaurantId') ?? '';
@@ -84,6 +92,21 @@ export class ProductDetailsComponent implements OnInit {
     if (productId) {
       this.loadProductDetails(productId);
     }
+  }
+
+  private checkStoreOpen(): void {
+    if (!this.restaurantId) return;
+    this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
+      next: (res: any) => {
+        const hours = res.openingHours ?? [];
+        const now = new Date();
+        const today = hours.find((h: any) => h.dayOfWeek === now.getDay());
+        if (!today) { this.isStoreOpen = false; return; }
+        const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+        const cur = now.getHours() * 60 + now.getMinutes();
+        this.isStoreOpen = cur >= toMin(today.openTime) && cur < toMin(today.closeTime);
+      }
+    });
   }
 
   loadProductDetails(productId: string) {
@@ -124,15 +147,11 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   private prefillFromOrderItem(orderItem: any): void {
-    console.log('Campos do orderItem:', Object.keys(orderItem));
-    console.log('orderItem completo:', JSON.stringify(orderItem));
     this.productQuantity = orderItem.quantity ?? 1;
     this.observacoes = orderItem.observation ?? '';
 
-    // Pré-preenche os acompanhamentos
     if (orderItem.sideDishes && orderItem.sideDishes.length > 0) {
       orderItem.sideDishes.forEach((sd: any) => {
-        // Encontra o grupo ao qual esse sideDish pertence
         this.product?.productSideDishGroups?.forEach((psdg) => {
           const found = psdg.sideDishGroup.sideDish.find((s) => s.id === sd.sideDishId);
           if (found) {
@@ -147,38 +166,19 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   initializeSideDishSelections() {
-    console.log('🎯 initializeSideDishSelections chamado');
+    if (!this.product?.productSideDishGroups) return;
 
-    if (!this.product?.productSideDishGroups) {
-      console.log('❌ Não há productSideDishGroups');
-      return;
-    }
-
-    console.log('📋 Processando', this.product.productSideDishGroups.length, 'grupos');
-
-    this.product.productSideDishGroups.forEach((psdg, index) => {
-      console.log(
-        `  Grupo ${index + 1}:`,
-        psdg.sideDishGroup?.name,
-        '- Pausado?',
-        psdg.sideDishGroup?.isPaused,
-      );
-
+    this.product.productSideDishGroups.forEach((psdg) => {
       if (!psdg.sideDishGroup?.isPaused) {
         const groupMap = new Map<string, number>();
         psdg.sideDishGroup.sideDish?.forEach((sd) => {
           groupMap.set(sd.id, 0);
-          console.log(`    ✅ Complemento adicionado:`, sd.name);
         });
         this.sideDishSelections.set(psdg.sideDishGroup.id, groupMap);
-      } else {
-        console.log(`    ⏸️ Grupo pausado, ignorando`);
       }
     });
-
-    console.log('✅ sideDishSelections final:', this.sideDishSelections);
   }
-
+  
   selectSingleSideDish(groupId: string, sideDishId: string) {
     const groupMap = this.sideDishSelections.get(groupId);
     if (!groupMap) return;
@@ -314,6 +314,11 @@ export class ProductDetailsComponent implements OnInit {
   confirmAddToCart() {
     if (!this.canAddToCart() || !this.product) return;
 
+    if (!this.isStoreOpen) {
+      this.notificationService.show('Nesse momento estamos fechado!');
+      return;
+    }
+
     if (this.editMode && this.editingOrderItemId) {
       const payload = {
         quantity: this.productQuantity,
@@ -348,8 +353,12 @@ export class ProductDetailsComponent implements OnInit {
       };
 
       this.orderService.addItem(payload).subscribe({
-        next: () => {
-          console.log('✅ Item adicionado, abrindo modal');
+        next: (response: { orderId: string; subTotal: number; total: number; itemsCount: number }) => {
+          const isFirstItem = !localStorage.getItem('cartOrderId');
+          if (isFirstItem && response?.orderId) {
+            this.cartExpiryService.startTracking(response.orderId);
+          }
+
           this.showConfirmModal = true;
           this.cdr.detectChanges();
         },

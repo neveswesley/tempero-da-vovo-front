@@ -11,9 +11,9 @@
 }
 
 .menu-page-container {
-  max-width: 1280px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 0 0px 24px;
+  padding: 0 0 24px;
 }
 
 .menu-header-card {
@@ -25,19 +25,18 @@
   padding: 22px 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   margin-bottom: 20px;
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  margin-top: 0;
+  border-radius: 12px;
+  border-left: 1px solid #e5e5e5;
+  border-right: 1px solid #e5e5e5;
+  margin-top: 24px;
 }
 
 .category-card {
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
 }
-
 .menu-header-top {
   display: flex;
   align-items: flex-start;
@@ -52,14 +51,14 @@
 }
 
 .menu-header-title {
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
 .menu-header-subtitle {
-  font-size: 0.9rem;
+  font-size: 12px;
   color: #6b7280;
   margin: 6px 0 0 0;
 }

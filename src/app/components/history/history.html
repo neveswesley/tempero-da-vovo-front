@@ -2,13 +2,19 @@
 
   <!-- HEADER -->
   <div class="history-header">
-    <div class="history-search">
-      <input type="text" placeholder="Digite o número do pedido" [(ngModel)]="searchQuery" (input)="onSearch()" />
+    <div class="topbar-title-group">
+      <h1 class="topbar-title">Histórico de <span class="topbar-highlight">Pedidos</span></h1>
+      <span class="topbar-sub">Consulte e filtre todos os pedidos do restaurante</span>
     </div>
 
-    <div class="history-period">
-      <input type="date" [(ngModel)]="startDate" (change)="loadHistory()" />
-      <input type="date" [(ngModel)]="endDate" (change)="loadHistory()" />
+    <div class="history-header-controls">
+      <div class="history-search">
+        <input type="text" placeholder="Número do pedido" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div class="history-period">
+        <input type="date" [(ngModel)]="startDate" (change)="loadHistory()" />
+        <input type="date" [(ngModel)]="endDate" (change)="loadHistory()" />
+      </div>
     </div>
   </div>
 
@@ -109,30 +115,26 @@
 
   <!-- PAGINATION -->
   <div class="history-pagination">
-  <div class="pagination-pagesize">
-    <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-      <option [value]="10">10</option>
-      <option [value]="20">20</option>
-      <option [value]="50">50</option>
-    </select>
-    <span>Itens por página</span>
+    <div class="pagination-pagesize">
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+      <span>Itens por página</span>
+    </div>
+
+    <div class="pagination-controls">
+      <button (click)="prevPage()" [disabled]="page === 1">‹</button>
+
+      <ng-container *ngFor="let p of getPageNumbers()">
+        <span *ngIf="p === -1" class="pagination-ellipsis">...</span>
+        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
+      </ng-container>
+
+      <button (click)="nextPage()" [disabled]="page === totalPages">›</button>
+    </div>
   </div>
-
-  <div class="pagination-controls">
-    <button (click)="prevPage()" [disabled]="page === 1">‹</button>
-
-    <ng-container *ngFor="let p of getPageNumbers()">
-      <span *ngIf="p === -1" class="pagination-ellipsis">...</span>
-      <button
-        *ngIf="p !== -1"
-        [class.active]="p === page"
-        (click)="goToPage(p)"
-      >{{ p }}</button>
-    </ng-container>
-
-    <button (click)="nextPage()" [disabled]="page === totalPages">›</button>
-  </div>
-</div>
 
 </div>
 

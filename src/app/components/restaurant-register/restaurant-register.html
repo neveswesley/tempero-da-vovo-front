@@ -3,28 +3,111 @@
     <h2>Cadastre seu restaurante</h2>
   </div>
   <h3>Aumente seus clientes e organize seus pedidos em um só lugar.</h3>
+
+  <!-- Nome -->
   <div>
-    <label>Nome:</label>
+    <label>Nome: <span class="required">*</span></label>
     <input type="text" name="name" [(ngModel)]="restaurant.name" required>
   </div>
 
+  <!-- Telefone -->
   <div>
-    <label>Telefone:</label>
+    <label>Telefone: <span class="required">*</span></label>
     <input type="text" name="phone" [(ngModel)]="restaurant.phone" required>
   </div>
 
+  <!-- Descrição -->
   <div>
-    <label>Endereço:</label>
-    <input type="text" name="address" [(ngModel)]="restaurant.address" required>
+    <label>Descrição:</label>
+    <textarea name="description" [(ngModel)]="restaurant.description" rows="3" placeholder="Descreva seu restaurante (opcional)"></textarea>
   </div>
 
-  <button type="submit" [disabled]="restaurantForm.invalid">Cadastrar</button>
+  <!-- Categoria -->
+  <div>
+    <label>Categoria: <span class="required">*</span></label>
+    <select name="restaurantCategory" [(ngModel)]="restaurant.restaurantCategory" required>
+      <option value="" disabled>Selecione uma categoria</option>
+      <option *ngFor="let cat of restaurantCategories" [value]="cat.value">{{ cat.label }}</option>
+    </select>
+  </div>
 
-    <a class="alreadRegistered" routerLink="/">
-      Já possui conta? Entre!
-    </a>
+  <!-- Formas de Pagamento -->
+  <div class="payment-ways">
+    <label>Formas de Pagamento: <span class="required">*</span></label>
+    <div class="checkbox-group">
+      <div *ngFor="let pw of paymentWayOptions" class="checkbox-item">
+        <input
+          type="checkbox"
+          [id]="'pw-' + pw.value"
+          [checked]="isPaymentWaySelected(pw.value)"
+          (change)="togglePaymentWay(pw.value)"
+        >
+        <label [for]="'pw-' + pw.value">{{ pw.label }}</label>
+      </div>
+    </div>
+  </div>
 
-    <h4>Ao continuar, você concorda em receber comunicações do Tempero da Vovó.</h4>
+  <!-- Endereço -->
+  <div class="section-title">Endereço</div>
+
+  <div>
+    <label>CEP: <span class="required">*</span></label>
+    <div class="cep-wrapper">
+      <input
+        type="text"
+        name="zipCode"
+        [(ngModel)]="restaurant.address.zipCode"
+        (blur)="fetchAddressByCep()"
+        maxlength="9"
+        placeholder="00000-000"
+        required
+      >
+      <span class="cep-spinner" *ngIf="loadingCep">⏳</span>
+    </div>
+    <span class="cep-error" *ngIf="cepError">{{ cepError }}</span>
+  </div>
+
+  <div class="address-row">
+    <div class="address-street">
+      <label>Rua: <span class="required">*</span></label>
+      <input type="text" name="street" [(ngModel)]="restaurant.address.street" required>
+    </div>
+    <div class="address-number">
+      <label>Número: <span class="required">*</span></label>
+      <input type="text" name="number" [(ngModel)]="restaurant.address.number" required>
+    </div>
+  </div>
+
+  <div>
+    <label>Complemento:</label>
+    <input type="text" name="complement" [(ngModel)]="restaurant.address.complement">
+  </div>
+
+  <div>
+    <label>Bairro: <span class="required">*</span></label>
+    <input type="text" name="neighborhood" [(ngModel)]="restaurant.address.neighborhood" required>
+  </div>
+
+  <div class="address-row">
+    <div class="address-city">
+      <label>Cidade: <span class="required">*</span></label>
+      <input type="text" name="city" [(ngModel)]="restaurant.address.city" required>
+    </div>
+    <div class="address-state">
+      <label>Estado: <span class="required">*</span></label>
+      <input type="text" name="state" [(ngModel)]="restaurant.address.state" required maxlength="2">
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="restaurantForm.invalid || restaurant.paymentWays.length === 0">
+    Cadastrar
+  </button>
+
+  <a class="alreadRegistered" routerLink="/">
+    Já possui conta? Entre!
+  </a>
+
+  <h4>Ao continuar, você concorda em receber comunicações do Tempero da Vovó.</h4>
 </form>
 
 <p *ngIf="successMessage" class="success">

@@ -184,6 +184,14 @@
   color: #777;
 }
 
+/* Descrição */
+.pub-description {
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
 .pub-tags {
   display: flex;
   flex-wrap: wrap;
@@ -403,7 +411,6 @@
 .map-iframe {
   display: block;
   border: none;
-
 }
 
 /* ══════════════════════════════════════

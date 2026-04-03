@@ -7,6 +7,14 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum PaymentWay {
+  Pix  = 0,
+  Cash = 1,
+  Card = 2,
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface PublicProfile {
@@ -25,16 +33,16 @@ interface PublicProfile {
     zipCode: string;
     complement: string;
   } | null;
-  paymentMethods: string[];       // array of method IDs
+  paymentWays: number[];
   openingHours: {
-    dayOfWeek: number;            // 0 = Sunday
-    openTime: string;             // "HH:mm:ss"
+    dayOfWeek: number;
+    openTime: string;   // "HH:mm:ss"
     closeTime: string;
   }[];
 }
 
 interface PaymentMethodDisplay {
-  id: string;
+  id: number;
   name: string;
   type: string;
   iconUrl: string;
@@ -78,55 +86,25 @@ export class RestaurantProfilePublicComponent implements OnInit {
   openingHours: OpeningHourDisplay[] = [];
   enabledPaymentMethods: PaymentMethodDisplay[] = [];
 
-  // ── Payment method catalogue ─────────────────────────────────────────────
+  // ── Payment method catalogue (id = valor do enum no backend) ─────────────
 
   private readonly allMethods: Omit<PaymentMethodDisplay, 'enabled'>[] = [
     {
-      id: 'pix',
+      id: PaymentWay.Pix,
       name: 'Pix',
-      type: 'Pagamento online',
+      type: 'Pagamento instantâneo',
       iconUrl: 'https://logospng.org/download/pix/logo-pix-icone-512.png',
     },
     {
-      id: 'credit_online',
-      name: 'Cartão de crédito (Online)',
-      type: 'Pagamento online',
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/633/633611.png',
-    },
-    {
-      id: 'debit_online',
-      name: 'Cartão de débito (Online)',
-      type: 'Pagamento online',
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/633/633611.png',
-    },
-    {
-      id: 'google_pay',
-      name: 'Google Pay',
-      type: 'Pagamento online',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/googlepay.svg',
-    },
-    {
-      id: 'nubank',
-      name: 'Nubank',
-      type: 'Pagamento online',
-      iconUrl: 'https://logodownload.org/wp-content/uploads/2019/10/nubank-logo-0.png',
-    },
-    {
-      id: 'cash',
+      id: PaymentWay.Cash,
       name: 'Dinheiro',
       type: 'Pagamento na entrega',
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/2489/2489756.png',
     },
     {
-      id: 'credit_delivery',
-      name: 'Cartão de crédito',
-      type: 'Pagamento na entrega',
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/633/633611.png',
-    },
-    {
-      id: 'debit_delivery',
-      name: 'Cartão de débito',
-      type: 'Pagamento na entrega',
+      id: PaymentWay.Card,
+      name: 'Cartão',
+      type: 'Crédito ou débito',
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/633/633611.png',
     },
   ];
@@ -145,9 +123,9 @@ export class RestaurantProfilePublicComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  this.restaurantId = this.route.snapshot.paramMap.get('restaurantId')!;
-  this.load();
-}
+    this.restaurantId = this.route.snapshot.paramMap.get('restaurantId')!;
+    this.load();
+  }
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
@@ -160,7 +138,7 @@ export class RestaurantProfilePublicComponent implements OnInit {
       next: (res) => {
         this.profile = res;
         this.buildOpeningHours(res.openingHours);
-        this.buildPaymentMethods(res.paymentMethods);
+        this.buildPaymentMethods(res.paymentWays);
         this.buildAddress(res.address);
         this.computeOpenStatus();
         this.loading = false;
@@ -192,17 +170,18 @@ export class RestaurantProfilePublicComponent implements OnInit {
     });
   }
 
-  private buildPaymentMethods(ids: string[]): void {
-    if (!ids?.length) {
+  private buildPaymentMethods(ways: number[]): void {
+    if (!ways?.length) {
       this.enabledPaymentMethods = [];
       return;
     }
-    this.enabledPaymentMethods = ids
-      .map(id => {
-        const meta = this.allMethods.find(m => m.id === id);
-        return meta ? { ...meta, enabled: true } : null;
-      })
-      .filter((m): m is PaymentMethodDisplay => m !== null);
+
+    // Garante comparação numérica independente do que vier da API
+    const normalized = ways.map(v => Number(v));
+
+    this.enabledPaymentMethods = this.allMethods
+      .filter(m => normalized.includes(m.id))
+      .map(m => ({ ...m, enabled: true }));
   }
 
   private buildAddress(addr: PublicProfile['address']): void {
@@ -239,7 +218,7 @@ export class RestaurantProfilePublicComponent implements OnInit {
     if (todayEntry?.isOpen) {
       const [oh, om] = todayEntry.openTime.split(':').map(Number);
       const [ch, cm] = todayEntry.closeTime.split(':').map(Number);
-      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const nowMin   = now.getHours() * 60 + now.getMinutes();
       const openMin  = oh * 60 + om;
       const closeMin = ch * 60 + cm;
 
@@ -250,7 +229,6 @@ export class RestaurantProfilePublicComponent implements OnInit {
         return;
       }
 
-      // Before opening today
       if (nowMin < openMin) {
         this.isOpen = false;
         this.statusLabel = `Abre hoje às ${todayEntry.openTime}h`;
@@ -259,21 +237,20 @@ export class RestaurantProfilePublicComponent implements OnInit {
       }
     }
 
-    // Find next open day
     for (let i = 1; i <= 7; i++) {
-      const nextDow = (todayDow + i) % 7;
+      const nextDow   = (todayDow + i) % 7;
       const nextEntry = this.openingHours.find(h => h.dayOfWeek === nextDow);
       if (nextEntry?.isOpen) {
         const label = i === 1 ? 'amanhã' : nextEntry.label.toLowerCase();
         this.isOpen = false;
-        this.statusLabel = `Abre ${label} às ${nextEntry.openTime}h`;
+        this.statusLabel  = `Abre ${label} às ${nextEntry.openTime}h`;
         this.nextOpenLabel = `Abre ${label} às ${nextEntry.openTime}h`;
         return;
       }
     }
 
     this.isOpen = false;
-    this.statusLabel = 'Fechado';
+    this.statusLabel  = 'Fechado';
     this.nextOpenLabel = '';
   }
 
@@ -281,7 +258,6 @@ export class RestaurantProfilePublicComponent implements OnInit {
 
   onIconError(event: Event, method: PaymentMethodDisplay): void {
     const img = event.target as HTMLImageElement;
-    // Render the first letter as fallback by hiding the broken image
     img.style.display = 'none';
     const parent = img.parentElement;
     if (parent && !parent.querySelector('.icon-fallback')) {
@@ -296,6 +272,6 @@ export class RestaurantProfilePublicComponent implements OnInit {
   // ── Navigation ─────────────────────────────────────────────────────────────
 
   goBack(): void {
-  this.router.navigate(['/delivery-home', this.restaurantId]);
-}
+    this.router.navigate(['/delivery-home', this.restaurantId]);
+  }
 }

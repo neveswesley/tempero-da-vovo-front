@@ -6,7 +6,6 @@
     font-family: "Montserrat", sans-serif;
 }
 
-
 /* HEADER */
 header {
   background-color: #740300;
@@ -23,7 +22,7 @@ header {
 
 /* FORMULÁRIO CENTRALIZADO */
 form {
-  max-width: 400px;
+  max-width: 480px;
   margin: 30px auto;
   padding: 30px;
   border-radius: 12px;
@@ -37,25 +36,23 @@ form {
 /* Espaçamento entre os campos */
 form div {
   margin-bottom: 15px;
-  margin-right: 18px;
 }
 
-h2{
+h2 {
   font-weight: 600;
   font-size: 28px;
 }
 
-h3{
+h3 {
   font-weight: 400;
   font-size: 18px;
   margin-bottom: 40px;
 }
 
-h4{
+h4 {
   margin-top: 15px;
   font-weight: 500;
   font-size: 12px;
-
 }
 
 /* Labels */
@@ -66,19 +63,148 @@ label {
   color: #333;
 }
 
+.required {
+  color: #740300;
+}
+
 /* Inputs */
-input {
+input, select, textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 14px;
+  font-family: "Montserrat", sans-serif;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-input:focus {
-  border-color: #3f51b5; /* azul moderno */
+input:focus, select:focus, textarea:focus {
+  border-color: #740300;
   outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+/* Seção de título interno */
+.section-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #740300;
+  border-bottom: 2px solid #740300;
+  padding-bottom: 6px;
+  margin-bottom: 15px !important;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Linhas duplas de endereço */
+.address-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.address-row > div {
+  margin-bottom: 0 !important;
+}
+
+.address-street {
+  flex: 3;
+}
+
+.address-number {
+  flex: 1;
+}
+
+.address-city {
+  flex: 2;
+}
+
+.address-state {
+  flex: 1;
+}
+
+/* Formas de pagamento */
+.payment-ways {
+  margin-bottom: 15px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0 !important;
+  background-color: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.checkbox-item:hover {
+  background-color: #fdecea;
+  border-color: #740300;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+  accent-color: #740300;
+}
+
+.checkbox-item label {
+  font-weight: 500;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.cep-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cep-spinner {
+  position: absolute;
+  right: 10px;
+  font-size: 14px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.cep-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #c0392b;
 }
 
 /* Botão */
@@ -88,6 +214,7 @@ button {
   background-color: #740300;
   color: white;
   font-size: 16px;
+  font-family: "Montserrat", sans-serif;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -117,15 +244,14 @@ p.error {
   color: red;
 }
 
-.alreadRegistered{
-    margin-top: 20px;
-    color: #740300;
-    display: block;
-    align-items: center;
-    text-align: center;
-    text-decoration: none;
+.alreadRegistered {
+  margin-top: 20px;
+  color: #740300;
+  display: block;
+  text-align: center;
+  text-decoration: none;
 }
 
-.alreadRegistered:hover{
+.alreadRegistered:hover {
   color: black;
 }

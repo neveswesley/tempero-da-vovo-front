@@ -24,47 +24,65 @@ import { RestaurantProfilePublicComponent } from './components/restaurant-profil
 import { SettingsComponent } from './components/settings/settings';
 import { AccountComponent } from './components/account/account';
 import { StoreComponent } from './components/store/store';
+import { PaymentComponent } from './components/payment/payment';
+
+import { restaurantGuard } from './guards/restaurant.guard';
+import { VerifyTwoFactor } from './components/verify-two-factor/verify-two-factor';
+import { ConfirmEmail } from './components/confirm-email/confirm-email';
 
 export const routes: Routes = [
-  { path: '', component: LoginUser, pathMatch: 'full' },
+  // públicas
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginUser },
   { path: 'register-user', component: UserRegister },
   { path: 'register-restaurant', component: RestaurantRegister },
-  { path: 'create-product', component: CreateProductComponent },
-  { path: 'list-products', component: ListProducts },
-  { path: 'create-category', component: CreateCategory },
-  { path: 'edit-product/:id', component: EditProductComponent },
-  { path: 'create-side-dish-group', component: CreateSideDishGroup },
+  { path: 'confirm-email', component: ConfirmEmail},
+{ path: 'verify-2fa', component: VerifyTwoFactor },
+
+  // públicas - cliente
   { path: 'delivery-home/:id', component: DeliveryHomeComponent },
   { path: 'product-details/:restaurantId/:id', component: ProductDetailsComponent },
+  { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'finalize-order', component: FinalizeOrderComponent },
-  { path: 'cart', component: CartComponent },
+  { path: 'address', component: AddressComponent },
   { path: 'orders-list', component: OrdersComponent },
   { path: 'orders', component: OrdersComponent },
-  { path: 'address', component: AddressComponent },
-  { path: 'profile/:restaurantId', component: RestaurantProfilePublicComponent },
   { path: 'confirmation', component: ConfirmationComponent },
+  { path: 'profile/:restaurantId', component: RestaurantProfilePublicComponent },
+
+  // privadas - restaurante
+  { path: 'create-product', component: CreateProductComponent, canActivate: [restaurantGuard] },
+  { path: 'list-products', component: ListProducts, canActivate: [restaurantGuard] },
+  { path: 'create-category', component: CreateCategory, canActivate: [restaurantGuard] },
+  { path: 'edit-product/:id', component: EditProductComponent, canActivate: [restaurantGuard] },
+  { path: 'create-side-dish-group', component: CreateSideDishGroup, canActivate: [restaurantGuard] },
+
   {
-  path: 'restaurant/:restaurantId',
-  component: RestaurantLayoutComponent,
-  children: [
-    { path: 'orders',        component: RestaurantOrdersComponent },
-    { path: 'list-products', component: ListProducts },
-    { path: 'delivery-zones', component: DeliveryZonesComponent },
-    { path: 'history',       component: History },
-    { path: 'opening-hours', component: OpeningHoursComponent },
-    {
-      path: 'settings',
-      component: SettingsComponent,
-      children: [
-        { path: 'account',  component: AccountComponent },
-        { path: 'store',    component: StoreComponent },
-        // { path: 'payment',  component: PaymentComponent },
-        // { path: 'printing', component: PrintingComponent },
-        { path: '', redirectTo: 'account', pathMatch: 'full' },
-      ]
-    },
-    { path: '', redirectTo: 'orders', pathMatch: 'full' },
-  ],
-},
+    path: 'restaurant/:restaurantId',
+    component: RestaurantLayoutComponent,
+    canActivate: [restaurantGuard],
+    canActivateChild: [restaurantGuard],
+    children: [
+      { path: 'orders', component: RestaurantOrdersComponent },
+      { path: 'list-products', component: ListProducts },
+      { path: 'delivery-zones', component: DeliveryZonesComponent },
+      { path: 'history', component: History },
+      { path: 'opening-hours', component: OpeningHoursComponent },
+      {
+        path: 'settings',
+        component: SettingsComponent,
+        children: [
+          { path: 'account', component: AccountComponent },
+          { path: 'store', component: StoreComponent },
+          { path: 'payment', component: PaymentComponent },
+          { path: '', redirectTo: 'account', pathMatch: 'full' },
+        ]
+      },
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
+    ],
+  },
+
+  // fallback
+  { path: '**', redirectTo: 'login' }
 ];

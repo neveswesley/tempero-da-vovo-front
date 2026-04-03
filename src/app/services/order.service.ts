@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { CancelOrderRequest, Order, OrderItem, PaginatedResponse } from '../models/order.models';
+import { CancellationReasonType, CancelOrderRequest, Order, OrderItem, PaginatedResponse } from '../models/order.models';
 import { AddItemToOrderRequest } from '../models/add-item-to-order.request';
 import { HttpInterceptorFn } from '@angular/common/http';
 
@@ -16,6 +16,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(cloned);
 };
 
+export interface OrderResponseJson {
+  orderId: string;
+  subTotal: number;
+  total: number;
+  itemsCount: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -27,16 +33,18 @@ export class OrderService {
 
   constructor(private http: HttpClient) { }
 
-
-
-  addItem(payload: AddItemToOrderRequest) {
-    return this.http.post<Order>(`${this.apiUrl}/add-item`, payload).pipe(
-      tap(order => {
-        const restaurantId = order.restaurantId ?? payload.restaurantId;
+  addItem(payload: AddItemToOrderRequest): Observable<OrderResponseJson> {
+    return this.http.post<OrderResponseJson>(`${this.apiUrl}/add-item`, payload).pipe(
+      tap(response => {
+        const restaurantId = payload.restaurantId;
         const clientSessionId = payload.clientSessionId;
         this.getCurrentOrder(restaurantId, clientSessionId).subscribe();
       })
     );
+  }
+
+  abandonOrder(orderId: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/abandon/${orderId}`, {});
   }
 
   updateOrderItem(orderItemId: string, payload: {
@@ -130,5 +138,16 @@ export class OrderService {
     return this.http.put<void>(`${this.apiUrl}/mark-as-delivered/${orderId}`, {});
   }
 
+  approveCancellationRequest(orderId: string, body: {
+    cancellationReasonType: CancellationReasonType;
+    cancellationReason: string;
+  }): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${orderId}/cancel/approve/`, body);
+  }
 
+  rejectCancellationRequest(orderId: string, body: {
+    rejectReason: string;
+  }): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${orderId}/cancel/reject/`, body);
+  }
 }

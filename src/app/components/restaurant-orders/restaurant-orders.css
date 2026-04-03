@@ -171,6 +171,18 @@
   cursor: pointer;
 }
 
+.btn-modal-primary {
+  flex: 2;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #1a1a1a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
 .feedback-box {
   align-items: center;
   padding: 36px 24px;
@@ -657,7 +669,6 @@
   padding: 3px 9px;
   border-radius: 100px;
   letter-spacing: 0.2px;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -1050,6 +1061,79 @@
 .panel-close:hover {
   background: var(--border);
   color: var(--text-dark);
+}
+
+/* ── Card de solicitação de cancelamento ── */
+.card-request {
+  border-left: 3px solid #f59e0b;
+}
+
+.card-status-request {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-group-count--alert {
+  background: #f59e0b;
+  color: #fff;
+}
+
+/* Botões de ação no card */
+.btn-deny-cancel {
+  background: #ffffff;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  font-size: 0.68rem;
+}
+
+.btn-deny-cancel:hover {
+  background: #f3f4f6;
+}
+
+.btn-approve-cancel {
+  background: #dc2626;
+  font-size: 0.68rem;
+}
+
+.btn-approve-cancel:hover {
+  background: #b91c1c;
+}
+
+/* Botões de ação no painel de detalhes */
+.btn-deny-cancel-detail {
+  margin-left: auto;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 2px solid #6b7280;
+  background: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-deny-cancel-detail:hover {
+  background: #f3f4f6;
+}
+
+.btn-approve-cancel-detail {
+  flex: unset;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-approve-cancel-detail:hover {
+  background: #b91c1c;
 }
 
 /* ── Detail body (scrollável) ── */

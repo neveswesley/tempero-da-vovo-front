@@ -35,7 +35,15 @@ export interface Order {
   readyAt?: string;
   canceledAt?: string;
   cancellationReason?: string;
+  cancellationRequestStatus?: CancellationRequestStatus;
 
+}
+
+export enum CancellationRequestStatus {
+  None = 0,
+  Pending = 1,
+  Approved = 2,
+  Rejected = 3
 }
 
 
@@ -85,7 +93,9 @@ export enum OrderStatus {
   Preparing = 2,
   OnTheWay = 3,
   Ready = 4,
-  Canceled = 5
+  CancellationRequested = 5,
+  Canceled = 6,
+  Abandoned = 99
 }
 
 export enum DeliveryMode {
@@ -133,6 +143,5 @@ export interface CancelOrderRequest {
   orderId: string;
   clientSessionId: string;
   reason: CancellationReasonType;
-  canceledBy: CanceledBy;
-  description?: string;
+  description: string;
 }

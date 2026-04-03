@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-user-register',
@@ -39,6 +38,7 @@ export class UserRegister {
     const restaurantId = localStorage.getItem('restaurantId');
     if (!restaurantId) {
       this.errorMessages = ['Restaurante não encontrado.'];
+      this.submitted = false;
       return;
     }
 
@@ -51,12 +51,13 @@ export class UserRegister {
     this.http.post('https://localhost:44356/api/Users', payload)
       .subscribe({
         next: () => {
-          this.successMessage = 'Usuário cadastrado com sucesso!';
+          localStorage.setItem('pendingEmail', this.user.email);
           this.user.email = '';
           this.user.password = '';
-          this.router.navigate(['/']);
+          this.router.navigate(['/confirm-email']);
         },
         error: (err: any) => {
+          this.submitted = false;
           console.error(err);
 
           if (err?.error?.errors && typeof err.error.errors === 'object') {
