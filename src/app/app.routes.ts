@@ -32,7 +32,7 @@ import { ConfirmEmail } from './components/confirm-email/confirm-email';
 
 export const routes: Routes = [
   // públicas
-  { path: '', redirectTo: 'delivery-home/1', pathMatch: 'full' },
+  { path: '', redirectTo: 'delivery-home/089364D2-0D9F-48E9-9535-F31CF78A3D5F', pathMatch: 'full' },
   { path: 'login', component: LoginUser },
   { path: 'register-user', component: UserRegister },
   { path: 'register-restaurant', component: RestaurantRegister },
@@ -84,5 +84,5 @@ export const routes: Routes = [
   },
 
   // fallback
-  { path: '**', redirectTo: 'delivery-home/1' }
+  { path: '**', redirectTo: 'delivery-home/089364D2-0D9F-48E9-9535-F31CF78A3D5F' }
 ];
