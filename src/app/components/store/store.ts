@@ -22,6 +22,21 @@ export class StoreComponent implements OnInit {
   saving = false;
   saveError: string | null = null;
   showSaveModal = false;
+  nameWarning = false;
+  nameBlocked = false;
+  daysUntilNameChange = 0;
+
+  restaurantCategories: any[] = [];
+
+  fetchingCep = false;
+
+  onPhoneInput(event: any) {
+    // pode implementar depois
+  }
+
+  onZipCodeInput(event: any) {
+    // pode implementar depois
+  }
 
   form: any = {
     name: '',
@@ -53,7 +68,6 @@ export class StoreComponent implements OnInit {
     this.loadStore();
   }
 
-  // ✅ CORRIGIDO
   loadStore(): void {
     this.loading = true;
     this.error = null;
