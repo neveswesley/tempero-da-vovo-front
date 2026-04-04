@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://seu-dominio-producao.com'
+  apiUrl: 'https://temperodavovo.onrender.com'
 };
