@@ -20,6 +20,7 @@ import { Order } from '../../models/order.models';
 import { filter } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-delivery-home',
@@ -401,7 +402,7 @@ export class DeliveryHomeComponent implements OnInit {
   }
 
   private loadStoreStatus(): void {
-    this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/api/Restaurants/${this.restaurantId}`).subscribe({
       next: (res) => {
         this.restaurantName = res.name;
         this.titleService.setTitle(`${res.name} - NvsFood`);

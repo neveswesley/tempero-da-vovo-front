@@ -89,7 +89,7 @@ export class CheckoutComponent implements OnInit {
       name: this.name.trim(),
     };
 
-    this.http.patch(`https://localhost:44356/api/Orders/complete-checkout/${orderId}`, payload).subscribe({
+    this.http.patch(`https://localhost:44356/environment.apiUrl/Orders/complete-checkout/${orderId}`, payload).subscribe({
       next: () => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('clientName', this.name.trim());
@@ -113,7 +113,7 @@ export class CheckoutComponent implements OnInit {
   onPhoneBlur(): void {
     if (!this.isPhoneValid) return;
 
-    this.http.get<{ name: string }>(`https://localhost:44356/api/Orders/existing-phone/${this.phone}`)
+    this.http.get<{ name: string }>(`https://localhost:44356/environment.apiUrl/Orders/existing-phone/${this.phone}`)
       .subscribe({
         next: (res) => {
           if (res?.name && !this.name) {

@@ -20,6 +20,7 @@ import { SideDishService, SideDishGroup } from '../../services/side-dish.service
 import { EditSideDishGroupModalComponent } from '../../modals/edit-side-dish-modal';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface Complement {
   id: string;
@@ -886,8 +887,7 @@ export class ListProducts implements OnInit, OnDestroy {
 
     if (!confirmed) return;
 
-    this.http
-      .delete(`/api/SideDishes/remove-side-dish-groups`, {
+    this.http.delete(`${environment.apiUrl}/api/SideDishes/remove-side-dish-groups`, {
         body: { productId: product.id, sideDishGroupIds: [group.id] },
       })
       .subscribe({

@@ -8,6 +8,7 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 interface UserInfo {
   id: string;
@@ -75,7 +76,7 @@ export class AccountComponent implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<UserInfo>('/api/Users/me').subscribe({
+    this.http.get<UserInfo>(`${environment.apiUrl}/api/Users/me`).subscribe({
       next: (res) => {
         this.user = res;
         this.loading = false;
@@ -147,7 +148,7 @@ export class AccountComponent implements OnInit {
 
     this.savingPassword = true;
 
-    this.http.put(`/api/Users/update-password/${this.user.id}`, {
+    this.http.put(`${environment.apiUrl}/api/Users/update-password/${this.user.id}`, {
       currentPassword: this.passwordForm.currentPassword,
       newPassword: this.passwordForm.newPassword,
       confirmPassword: this.passwordForm.confirmPassword,

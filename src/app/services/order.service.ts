@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { CancellationReasonType, CancelOrderRequest, Order, OrderItem, PaginatedResponse } from '../models/order.models';
 import { AddItemToOrderRequest } from '../models/add-item-to-order.request';
 import { HttpInterceptorFn } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
@@ -26,7 +27,7 @@ export interface OrderResponseJson {
 @Injectable({ providedIn: 'root' })
 export class OrderService {
 
-  private readonly apiUrl = 'https://localhost:44356/api/Orders';
+  private readonly apiUrl = `${environment.apiUrl}/api/Orders`;
 
   private orderSubject = new BehaviorSubject<Order | null>(null);
   order$ = this.orderSubject.asObservable();
