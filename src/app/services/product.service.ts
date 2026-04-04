@@ -132,7 +132,7 @@ getCategories(restaurantId: string): Observable<CategoryWithProducts[]> {
       ? imageUrl.substring(1)
       : imageUrl;
 
-    return `https://localhost:44356/${cleanPath}`;
+    return `${environment.apiUrl}/${cleanPath}`;
   }
 
   duplicateProduct(productId: string, newProductName?: string) {
