@@ -4,6 +4,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 export enum PaymentWay {
   Pix = 0,
@@ -69,7 +70,7 @@ export class PaymentComponent implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<{ paymentWays: any[] }>(`/api/restaurants/${this.restaurantId}`).subscribe({
+    this.http.get<{ paymentWays: any[] }>(`${environment.apiUrl}/api/restaurants/${this.restaurantId}`).subscribe({
       next: (res) => {
         console.log('resposta da api:', res);
         const saved = (res.paymentWays ?? []).map(v => Number(v));
@@ -114,7 +115,7 @@ export class PaymentComponent implements OnInit {
       paymentWays: this.paymentMethods.filter(m => m.selected).map(m => m.id),
     };
 
-    this.http.put(`/api/restaurants/${this.restaurantId}`, payload).subscribe({
+    this.http.put(`${environment.apiUrl}/api/restaurants/${this.restaurantId}`, payload).subscribe({
       next: () => {
         this.saving = false;
         this.showSaveModal = false;

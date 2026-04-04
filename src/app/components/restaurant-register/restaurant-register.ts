@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 // Espelha o enum PaymentWay do backend
 export enum PaymentWay {
@@ -196,7 +197,7 @@ export class RestaurantRegister {
     this.successMessage = '';
     this.errorMessage = '';
 
-    const url = 'https://localhost:44356/api/Restaurants';
+    const url = `${environment.apiUrl}/api/Restaurants`;
 
     // Garante que restaurantCategory é enviado como number, não string
     const payload = {

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,16 +53,16 @@ export class OpeningHoursComponent implements OnInit {
   showSaveModal = false;
 
   schedule: DaySchedule[] = [
-    { dayOfWeek: 0, label: 'Domingo',       abbr: 'Dom', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 0, label: 'Domingo', abbr: 'Dom', isOpen: false, slots: [this.defaultSlot()] },
     { dayOfWeek: 1, label: 'Segunda-feira', abbr: 'Seg', isOpen: false, slots: [this.defaultSlot()] },
-    { dayOfWeek: 2, label: 'Terça-feira',   abbr: 'Ter', isOpen: false, slots: [this.defaultSlot()] },
-    { dayOfWeek: 3, label: 'Quarta-feira',  abbr: 'Qua', isOpen: false, slots: [this.defaultSlot()] },
-    { dayOfWeek: 4, label: 'Quinta-feira',  abbr: 'Qui', isOpen: false, slots: [this.defaultSlot()] },
-    { dayOfWeek: 5, label: 'Sexta-feira',   abbr: 'Sex', isOpen: false, slots: [this.defaultSlot()] },
-    { dayOfWeek: 6, label: 'Sábado',        abbr: 'Sáb', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 2, label: 'Terça-feira', abbr: 'Ter', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 3, label: 'Quarta-feira', abbr: 'Qua', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 4, label: 'Quinta-feira', abbr: 'Qui', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 5, label: 'Sexta-feira', abbr: 'Sex', isOpen: false, slots: [this.defaultSlot()] },
+    { dayOfWeek: 6, label: 'Sábado', abbr: 'Sáb', isOpen: false, slots: [this.defaultSlot()] },
   ];
 
-  constructor(private http: HttpClient, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.restaurantId = this.route.snapshot.parent?.paramMap.get('restaurantId') ?? this.route.snapshot.paramMap.get('restaurantId')!;
@@ -73,10 +74,7 @@ export class OpeningHoursComponent implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http
-      .get<OpeningHourItemRequest[]>(
-        `/api/restaurants/opening-hours/${this.restaurantId}`
-      )
+    this.http.get(`${environment.apiUrl}/api/restaurants/opening-hours/${this.restaurantId}`)
       .subscribe({
         next: (res) => {
           this.applyResponse(Array.isArray(res) ? res : []);
@@ -109,7 +107,7 @@ export class OpeningHoursComponent implements OnInit {
       if (!day) return;
       day.isOpen = true;
       day.slots = items.map((i) => ({
-        openTime:  i.openTime.substring(0, 5),
+        openTime: i.openTime.substring(0, 5),
         closeTime: i.closeTime.substring(0, 5),
       }));
     });
@@ -159,8 +157,7 @@ export class OpeningHoursComponent implements OnInit {
 
     const payload = this.buildPayload();
 
-    this.http
-      .put(`/api/Restaurants/opening-hours/${this.restaurantId}`, payload)
+    this.http.put(`${environment.apiUrl}/api/Restaurants/opening-hours/${this.restaurantId}`, payload)
       .subscribe({
         next: () => {
           this.saving = false;
@@ -224,7 +221,7 @@ export class OpeningHoursComponent implements OnInit {
       day.slots.forEach((slot) => {
         openingHours.push({
           dayOfWeek: day.dayOfWeek,
-          openTime:  `${slot.openTime}:00`,
+          openTime: `${slot.openTime}:00`,
           closeTime: `${slot.closeTime}:00`,
         });
       });

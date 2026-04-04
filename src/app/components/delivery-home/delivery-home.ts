@@ -335,7 +335,7 @@ export class DeliveryHomeComponent implements OnInit {
     this.activeTab = tab;
     switch (tab) {
       case 'home':
-        this.router.navigate(['/delivery-home']);
+        this.router.navigate(['/delivery-home', this.restaurantId]);
         break;
       case 'orders':
         this.router.navigate(['/orders-list']);

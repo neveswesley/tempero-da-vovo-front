@@ -8,6 +8,7 @@ import { OrderService } from '../../services/order.service';
 import { NotificationService } from '../../services/notification.service';
 import { CartExpiryService } from '../../services/cart-expiry.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 
 interface SideDish {
@@ -96,7 +97,7 @@ export class ProductDetailsComponent implements OnInit {
 
   private checkStoreOpen(): void {
     if (!this.restaurantId) return;
-    this.http.get<any>(`/api/Restaurants/${this.restaurantId}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/api/Restaurants/${this.restaurantId}`).subscribe({
       next: (res: any) => {
         const hours = res.openingHours ?? [];
         const now = new Date();
@@ -427,7 +428,7 @@ export class ProductDetailsComponent implements OnInit {
       return imageUrl;
     }
 
-    return `https://localhost:44356${imageUrl}`;
+    return `${environment.apiUrl}${imageUrl}`;
   }
 
   getClientSessionId(): string {

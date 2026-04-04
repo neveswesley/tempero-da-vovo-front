@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-user-register',
@@ -48,7 +49,7 @@ export class UserRegister {
       password: this.user.password
     };
 
-    this.http.post('https://localhost:44356/api/Users', payload)
+    this.http.post(`${environment.apiUrl}/api/Users`, payload)
       .subscribe({
         next: () => {
           localStorage.setItem('pendingEmail', this.user.email);

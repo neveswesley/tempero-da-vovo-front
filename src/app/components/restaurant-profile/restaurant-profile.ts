@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from '../../environments/environment';
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
@@ -134,7 +135,7 @@ export class RestaurantProfilePublicComponent implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<PublicProfile>(`/api/Restaurants/${this.restaurantId}`).subscribe({
+    this.http.get<PublicProfile>(`${environment.apiUrl}/api/Restaurants/${this.restaurantId}`).subscribe({
       next: (res) => {
         this.profile = res;
         this.buildOpeningHours(res.openingHours);

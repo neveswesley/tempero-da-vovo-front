@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/order.models';
+import { environment } from '../../environments/environment';
 
 interface Neighborhood {
   id: string;
@@ -103,7 +104,7 @@ export class FinalizeOrderComponent implements OnInit {
   }
 
   loadNeighborhoods(restaurantId: string): void {
-    this.http.get<Neighborhood[]>(`https://localhost:44356/api/Neighborhoods/${restaurantId}`)
+    this.http.get<Neighborhood[]>(`${environment.apiUrl}/api/Neighborhoods/${restaurantId}`)
       .subscribe({
         next: (data) => {
           this.neighborhoods = data;
@@ -314,8 +315,7 @@ export class FinalizeOrderComponent implements OnInit {
       deliveryFee: this.deliveryFee,
     };
 
-    this.http
-      .put(`https://localhost:44356/api/Orders/finalize-order/${this.order?.id}`, request)
+    this.http.put(`${environment.apiUrl}/api/Orders/finalize-order/${this.order?.id}`, request)
       .subscribe({
         next: () => {
           this.isSubmitting = false;

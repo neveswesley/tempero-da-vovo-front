@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-confirm-email',
@@ -29,7 +30,7 @@ export class ConfirmEmail {
       return;
     }
 
-    this.http.post('https://localhost:44356/api/Users/confirm-email', { email, code: this.code })
+    this.http.post(`${environment.apiUrl}/api/Users/confirm-email`, { email, code: this.code })
       .subscribe({
         next: () => {
           localStorage.removeItem('pendingEmail');

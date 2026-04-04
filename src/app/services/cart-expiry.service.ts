@@ -3,6 +3,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../environments/environment';
 
 const CART_ORDER_ID_KEY  = 'cartOrderId';
 const CART_CREATED_AT_KEY = 'cartCreatedAt';
@@ -72,7 +73,7 @@ export class CartExpiryService implements OnDestroy {
 
     // Notifica o backend
     if (orderId) {
-      this.http.patch(`/api/Orders/abandon/${orderId}`, {}).subscribe();
+      this.http.patch(`${environment.apiUrl}/api/Orders/abandon/${orderId}`, {}).subscribe();
     }
 
     // Limpa tudo

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CategoryWithProducts } from '../models/category.models';
+import { environment } from '../environments/environment';
 
 export interface CreateCategoryResponse {
   id: string;
@@ -26,9 +27,9 @@ export interface UpdateCategoryRequest {
   providedIn: 'root',
 })
 export class CategoryService {
-  private readonly apiUrl = 'https://localhost:44356/api/Categories';
+  private readonly apiUrl = `${environment.apiUrl}/api/Categories`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   create(data: CreateCategoryRequest): Observable<CreateCategoryResponse> {
     const restaurantId = localStorage.getItem('restaurantId');
@@ -75,6 +76,7 @@ export class CategoryService {
 
     return this.http.patch(
       `${this.apiUrl}/${categoryId}`,
+      {},
       {
         headers: {
           'X-Restaurant-Id': restaurantId ?? ''
@@ -84,9 +86,9 @@ export class CategoryService {
   }
 
   updateCategoryOrder(restaurantId: string, categoryIds: string[]): Observable<any> {
-  return this.http.put(`${this.apiUrl}/reorder-category`, {
-    restaurantId,
-    categoryIds
-  });
-}
+    return this.http.put(`${this.apiUrl}/reorder-category`, {
+      restaurantId,
+      categoryIds
+    });
+  }
 }

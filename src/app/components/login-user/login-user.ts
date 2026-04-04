@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +37,7 @@ export class LoginUser {
       password: this.password,
     };
 
-    this.http.post<any>('https://localhost:44356/api/Users/login', payload).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/api/Users/login`, payload).subscribe({
       next: (response) => {
         if (response.success) {
           localStorage.setItem('restaurantId', response.restaurantId);

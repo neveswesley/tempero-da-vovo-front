@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-verify-2fa',
@@ -28,7 +29,7 @@ export class VerifyTwoFactor {
       return;
     }
 
-    this.http.post<any>('https://localhost:44356/api/Users/verify-2fa', { email, code: this.code })
+    this.http.post<any>(`${environment.apiUrl}/api/Users/verify-2fa`, { email, code: this.code })
       .subscribe({
         next: (response) => {
           localStorage.removeItem('pendingEmail');
