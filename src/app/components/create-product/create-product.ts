@@ -103,17 +103,16 @@ export class CreateProductComponent implements OnInit {
 
         const preSelectedCategoryId = sessionStorage.getItem('preSelectedCategoryId');
 
-        if (preSelectedCategoryId) {
-          const selected = categories.find((c) => c.categoryId === preSelectedCategoryId);
+        if (preSelectedCategoryId && categories.length > 0) {
+          const selected = categories.find(
+            (c) => c.categoryId === preSelectedCategoryId
+          );
 
           if (selected) {
             this.form.get('categoryId')?.setValue(selected.categoryId);
             this.selectedCategoryName = selected.categoryName;
-
-            if (this.categoryLockedFromUrl) {
-              this.form.get('categoryId')?.disable();
-            }
-
+          } else {
+            console.warn('Categoria não encontrada:', preSelectedCategoryId);
           }
 
           sessionStorage.removeItem('preSelectedCategoryId');
@@ -193,7 +192,7 @@ export class CreateProductComponent implements OnInit {
 
     // Atualiza o input
     input.value = formatted;
-    
+
     // Atualiza o form control
     this.form.get('price')?.setValue(formatted, { emitEvent: false });
 
@@ -207,7 +206,7 @@ export class CreateProductComponent implements OnInit {
 
   onPriceBlur() {
     const value = this.form.get('price')?.value;
-    
+
     // Garante que sempre tenha 2 casas decimais
     if (value === '' || value === null || value === undefined) {
       this.form.get('price')?.setValue('0.00', { emitEvent: false });
