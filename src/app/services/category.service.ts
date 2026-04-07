@@ -32,18 +32,18 @@ export class CategoryService {
   constructor(private http: HttpClient) { }
 
   create(data: CreateCategoryRequest): Observable<CreateCategoryResponse> {
-    const restaurantId = localStorage.getItem('restaurantId');
+  const restaurantId = localStorage.getItem('restaurantId');
 
-    return this.http.post<CreateCategoryResponse>(
-      this.apiUrl,
-      data,
-      {
-        headers: {
-          'X-Restaurant-Id': restaurantId ?? ''
-        }
-      }
-    );
-  }
+  const body = {
+    ...data,
+    restaurantId
+  };
+
+  return this.http.post<CreateCategoryResponse>(
+    this.apiUrl,
+    body
+  );
+}
 
   getAllByRestaurant(restaurantId: string): Observable<Category[]> {
     return this.http.get<Category[]>(
