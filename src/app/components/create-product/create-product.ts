@@ -12,6 +12,8 @@ import { ProductService } from '../../services/product.service';
 import { Category } from '../../services/category.service';
 import { NotificationService } from '../../services/notification.service';
 import { NgZone } from '@angular/core';
+import { CategoryService } from '../../services/category.service';
+
 
 @Component({
   selector: 'app-create-product',
@@ -39,6 +41,7 @@ export class CreateProductComponent implements OnInit {
     private productService: ProductService,
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef,
+    private categoryService: CategoryService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.form = this.fb.group({
@@ -82,57 +85,43 @@ export class CreateProductComponent implements OnInit {
   }
 
   loadCategories() {
-    if (!isPlatformBrowser(this.platformId)) return;
+  if (!isPlatformBrowser(this.platformId)) return;
 
-    const restaurantId = localStorage.getItem('restaurantId');
-    console.log('restaurantId:', restaurantId);
+  const restaurantId = localStorage.getItem('restaurantId');
+  if (!restaurantId) return;
 
-    if (!restaurantId) {
-      console.error('RestaurantId não encontrado');
-      return;
-    }
+  this.loadingCategories = true;
+  this.form.get('categoryId')?.disable();
 
-    this.loadingCategories = true;
-    this.form.get('categoryId')?.disable();
+  this.categoryService.getWithProducts(restaurantId).subscribe({
+    next: (categories) => {
+      this.categories = categories;
+      this.loadingCategories = false;
+      this.form.get('categoryId')?.enable();
 
-    this.productService.getCategories(restaurantId).subscribe({
-      next: (categories) => {
-        this.categories = categories;
-        this.loadingCategories = false;
+      const preSelectedCategoryId = sessionStorage.getItem('preSelectedCategoryId');
 
-        this.form.get('categoryId')?.enable();
-
-        const preSelectedCategoryId = sessionStorage.getItem('preSelectedCategoryId');
-        console.log('preSelectedCategoryId:', preSelectedCategoryId);
-        console.log('categorias ids:', categories.map(c => c.categoryId));
-
-        if (preSelectedCategoryId && categories.length > 0) {
-          const selected = categories.find(
-            (c) => c.categoryId === preSelectedCategoryId
-          );
-
-          if (selected) {
-            this.form.get('categoryId')?.setValue(selected.categoryId);
-            this.selectedCategoryName = selected.categoryName;
-          } else {
-            console.warn('Categoria não encontrada:', preSelectedCategoryId);
-          }
-
-          sessionStorage.removeItem('preSelectedCategoryId');
-        } else if (categories.length > 0) {
-          this.form.get('categoryId')?.setValue(categories[0].categoryId);
-          this.selectedCategoryName = categories[0].categoryName;
+      if (preSelectedCategoryId && categories.length > 0) {
+        const selected = categories.find(c => c.categoryId === preSelectedCategoryId);
+        if (selected) {
+          this.form.get('categoryId')?.setValue(selected.categoryId);
+          this.selectedCategoryName = selected.categoryName;
         }
+        sessionStorage.removeItem('preSelectedCategoryId');
+      } else if (categories.length > 0) {
+        this.form.get('categoryId')?.setValue(categories[0].categoryId);
+        this.selectedCategoryName = categories[0].categoryName;
+      }
 
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Erro ao carregar cardápio:', error);
-        this.loadingCategories = false;
-        this.form.get('categoryId')?.enable();
-      },
-    });
-  }
+      this.cdr.detectChanges();
+    },
+    error: (error) => {
+      console.error('Erro ao carregar categorias:', error);
+      this.loadingCategories = false;
+      this.form.get('categoryId')?.enable();
+    },
+  });
+}
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;

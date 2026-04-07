@@ -5,6 +5,8 @@ import { AddItemToOrderRequest, OrderResponse, Product } from '../models/product
 import { CategoryWithProducts } from '../models/category.models';
 import { ProductWithSideDishes } from '../models/side-dish.models';
 import { environment } from '../environments/environment';
+import { CategoryService } from '../services/category.service';
+
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +15,9 @@ export class ProductService {
   
   private apiUrl = `${environment.apiUrl}/api/Products`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+    private categoryService: CategoryService,
+  ) {}
 
   createProduct(productData: any, file?: File): Observable<Product> {
     const formData = new FormData();
