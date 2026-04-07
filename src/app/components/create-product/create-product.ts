@@ -85,6 +85,7 @@ export class CreateProductComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const restaurantId = localStorage.getItem('restaurantId');
+    console.log('restaurantId:', restaurantId);
 
     if (!restaurantId) {
       console.error('RestaurantId não encontrado');
