@@ -260,6 +260,7 @@ export class ListProducts implements OnInit, OnDestroy {
       });
 
       console.log('📦 Categorias carregadas:', this.categories);
+      
 
       this.loading = false;
 

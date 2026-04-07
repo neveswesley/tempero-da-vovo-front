@@ -102,6 +102,8 @@ export class CreateProductComponent implements OnInit {
         this.form.get('categoryId')?.enable();
 
         const preSelectedCategoryId = sessionStorage.getItem('preSelectedCategoryId');
+        console.log('URL categoryId:', preSelectedCategoryId);
+        console.log('Categorias:', categories);
 
         if (preSelectedCategoryId && categories.length > 0) {
           const selected = categories.find(
