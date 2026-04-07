@@ -41,9 +41,9 @@ export class CreateCategory {
 
     this.categoryService.create(this.form.value).subscribe({
       next: (response) => {
-        this.notification.show(`Categoria ${response.name} criada com sucesso!`);
-
-        this.router.navigate(['/list-products']);
+        this.notification.show('Categoria criada com sucesso!');
+        const restaurantId = localStorage.getItem('restaurantId');
+        this.router.navigate(['/restaurant', restaurantId, 'list-products']);
       },
       error: () => {
         this.notification.show('Erro ao criar categoria');
