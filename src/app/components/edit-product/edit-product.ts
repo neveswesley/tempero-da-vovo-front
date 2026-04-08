@@ -23,6 +23,7 @@ export class EditProductComponent implements OnInit {
   originalImageUrl: string | null = null;
   imageWasRemoved = false;
   isLoading = true; // Para mostrar loading
+  
 
   constructor(
     private fb: FormBuilder,
@@ -34,8 +35,10 @@ export class EditProductComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
+  
 
   ngOnInit() {
+    const restaurantId = localStorage.getItem('restaurantId');
     console.log('🔵 EditProductComponent - ngOnInit iniciado');
     
     this.buildForm();
@@ -46,14 +49,13 @@ export class EditProductComponent implements OnInit {
     if (!id) {
       console.error('❌ ID não encontrado na rota!');
       this.notification.show('Produto inválido');
-      this.router.navigate(['/list-products']);
+      this.router.navigate(['/restaurant', restaurantId, 'list-products']);
       return;
     }
     
     this.productId = id;
     console.log('✅ ProductId definido:', this.productId);
 
-    // Carregar categorias PRIMEIRO, depois o produto
     this.loadCategories().then(() => {
       console.log('✅ Categorias carregadas, agora carregando produto...');
       this.loadProduct();
@@ -79,6 +81,7 @@ export class EditProductComponent implements OnInit {
   }
 
   loadProduct() {
+    const restaurantId = localStorage.getItem('restaurantId');
     console.log('📦 Iniciando carregamento do produto:', this.productId);
     
     this.productService.getById(this.productId).subscribe({
@@ -179,7 +182,7 @@ export class EditProductComponent implements OnInit {
         // Se o produto não for encontrado, volta para a lista
         if (err.status === 404) {
           setTimeout(() => {
-            this.router.navigate(['/list-products']);
+            this.router.navigate(['/restaurant', restaurantId, 'list-products']);
           }, 2000);
         }
       },
@@ -292,8 +295,9 @@ export class EditProductComponent implements OnInit {
   }
 
   private finishSuccess() {
+    const restaurantId = localStorage.getItem('restaurantId');
     this.notification.show('Produto atualizado com sucesso');
-    this.router.navigate(['/list-products']);
+    this.router.navigate(['/restaurant', restaurantId, 'list-products']);
   }
 
   removeImage() {
@@ -323,7 +327,8 @@ export class EditProductComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/list-products']);
+    const restaurantId = localStorage.getItem('restaurantId');
+    this.router.navigate(['/restaurant', restaurantId, 'list-products']);
   }
 
   onPriceInput(event: Event) {

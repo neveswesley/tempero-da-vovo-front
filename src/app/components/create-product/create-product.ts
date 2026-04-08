@@ -240,7 +240,7 @@ export class CreateProductComponent implements OnInit {
       next: () => {
         this.notificationService.show('Cardápio atualizado com sucesso');
         setTimeout(() => {
-          this.router.navigate(['/list-products']);
+          this.router.navigate(['/restaurant', restaurantId, 'list-products']);
         }, 600);
       },
       error: (error) => {

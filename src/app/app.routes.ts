@@ -25,7 +25,6 @@ import { SettingsComponent } from './components/settings/settings';
 import { AccountComponent } from './components/account/account';
 import { StoreComponent } from './components/store/store';
 import { PaymentComponent } from './components/payment/payment';
-
 import { restaurantGuard } from './guards/restaurant.guard';
 import { VerifyTwoFactor } from './components/verify-two-factor/verify-two-factor';
 import { ConfirmEmail } from './components/confirm-email/confirm-email';
@@ -36,8 +35,8 @@ export const routes: Routes = [
   { path: 'login', component: LoginUser },
   { path: 'register-user', component: UserRegister },
   { path: 'register-restaurant', component: RestaurantRegister },
-  { path: 'confirm-email', component: ConfirmEmail},
-{ path: 'verify-2fa', component: VerifyTwoFactor },
+  { path: 'confirm-email', component: ConfirmEmail },
+  { path: 'verify-2fa', component: VerifyTwoFactor },
 
   // públicas - cliente
   { path: 'delivery-home/:id', component: DeliveryHomeComponent },
@@ -51,13 +50,7 @@ export const routes: Routes = [
   { path: 'confirmation', component: ConfirmationComponent },
   { path: 'profile/:restaurantId', component: RestaurantProfilePublicComponent },
 
-  // privadas - restaurante
-  { path: 'create-product', component: CreateProductComponent, canActivate: [restaurantGuard] },
-  { path: 'list-products', component: ListProducts, canActivate: [restaurantGuard] },
-  { path: 'create-category', component: CreateCategory, canActivate: [restaurantGuard] },
-  { path: 'edit-product/:id', component: EditProductComponent, canActivate: [restaurantGuard] },
-  { path: 'create-side-dish-group', component: CreateSideDishGroup, canActivate: [restaurantGuard] },
-
+  // privadas - restaurante (com layout)
   {
     path: 'restaurant/:restaurantId',
     component: RestaurantLayoutComponent,
@@ -66,6 +59,10 @@ export const routes: Routes = [
     children: [
       { path: 'orders', component: RestaurantOrdersComponent },
       { path: 'list-products', component: ListProducts },
+      { path: 'create-product', component: CreateProductComponent },
+      { path: 'create-category', component: CreateCategory },
+      { path: 'edit-product/:id', component: EditProductComponent },
+      { path: 'create-side-dish-group', component: CreateSideDishGroup },
       { path: 'delivery-zones', component: DeliveryZonesComponent },
       { path: 'history', component: History },
       { path: 'opening-hours', component: OpeningHoursComponent },
@@ -77,12 +74,12 @@ export const routes: Routes = [
           { path: 'store', component: StoreComponent },
           { path: 'payment', component: PaymentComponent },
           { path: '', redirectTo: 'account', pathMatch: 'full' },
-        ]
+        ],
       },
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
     ],
   },
 
   // fallback
-  { path: '**', redirectTo: 'delivery-home/089364D2-0D9F-48E9-9535-F31CF78A3D5F' }
+  { path: '**', redirectTo: 'delivery-home/089364D2-0D9F-48E9-9535-F31CF78A3D5F' },
 ];

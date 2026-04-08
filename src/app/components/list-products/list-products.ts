@@ -433,7 +433,9 @@ export class ListProducts implements OnInit, OnDestroy {
 
   // ===== CATEGORIAS =====
   openAddCategoryModal() {
-    this.router.navigate(['/create-category']);
+    const restaurantId = localStorage.getItem('restaurantId');
+    this.router.navigate(['/restaurant', restaurantId, 'create-category']);
+
   }
 
   editCategory(category: Category) {
@@ -721,6 +723,7 @@ export class ListProducts implements OnInit, OnDestroy {
   }
 
   addComplement(product: Product): void {
+    const restaurantId = localStorage.getItem('restaurantId');
     console.log('➕ Criar novo grupo para produto:', product.id);
 
     if (isPlatformBrowser(this.platformId)) {
@@ -728,7 +731,7 @@ export class ListProducts implements OnInit, OnDestroy {
       localStorage.setItem('openAddSideDishModal', 'true');
     }
 
-    this.router.navigate(['/create-side-dish-group']);
+    this.router.navigate(['/restaurant', restaurantId, 'create-side-dish-group']);
   }
 
   openAddComplementGroupModal(product: Product) {

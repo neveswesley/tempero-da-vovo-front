@@ -557,11 +557,11 @@ export class AddSideDishModalComponent implements OnInit, OnChanges {
     private sideDishService: SideDishService,
     private confirmationService: ConfirmationService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   private originallySelectedGroupIds: string[] = [];
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['complementGroups'] && this.complementGroups?.length) {
@@ -583,10 +583,11 @@ export class AddSideDishModalComponent implements OnInit, OnChanges {
   }
 
   addComplement(product: Product): void {
+    const restaurantId = localStorage.getItem('restaurantId');
     localStorage.setItem('currentProductId', product.id);
     localStorage.setItem('openAddSideDishModal', 'true');
     this.closeModal.emit();
-    this.router.navigate(['/create-side-dish-group']);
+    this.router.navigate(['/restaurant', restaurantId, 'create-side-dish-group']);
   }
 
   save(): void {

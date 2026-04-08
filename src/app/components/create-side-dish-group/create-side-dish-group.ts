@@ -18,6 +18,9 @@ interface CreateSideDishGroupRequest {
   isRequired: boolean;
 }
 
+const restaurantId = localStorage.getItem('restaurantId');
+
+
 @Component({
   selector: 'app-create-side-dish-group',
   standalone: true,
@@ -47,7 +50,6 @@ export class CreateSideDishGroup implements OnInit {
   }
 
   ngOnInit(): void {
-    // ⚡ ADICIONAR VERIFICAÇÃO DE PLATAFORMA
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -58,7 +60,8 @@ export class CreateSideDishGroup implements OnInit {
 
     if (!this.productId || !this.restaurantId) {
       this.notificationService.show('Erro: Produto ou restaurante não identificado');
-      this.router.navigate(['/list-products']);
+      this.router.navigate(['/restaurant', restaurantId, 'list-products']);
+
       return;
     }
   }
@@ -129,13 +132,13 @@ export class CreateSideDishGroup implements OnInit {
         console.log('✅ Grupo de complementos criado:', response);
         this.notificationService.show('Grupo criado com sucesso!');
 
-        // ⚡ VERIFICAR PLATAFORMA ANTES DE USAR LOCALSTORAGE
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('openAddSideDishModal', 'true');
           localStorage.setItem('currentProductId', this.productId!);
         }
         
-        this.router.navigate(['/list-products']);
+        this.router.navigate(['/restaurant', restaurantId, 'list-products']);
+
       },
       error: (error) => {
         console.error('❌ Erro ao criar grupo:', error);
@@ -149,12 +152,11 @@ export class CreateSideDishGroup implements OnInit {
 
   // ===== CANCELAR =====
   closeModal(): void {
-    // ⚡ VERIFICAR PLATAFORMA
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('currentProductId');
     }
     
-    this.router.navigate(['/list-products']);
+    this.router.navigate(['/restaurant', restaurantId, 'list-products']);
   }
 
   cancel(): void {
