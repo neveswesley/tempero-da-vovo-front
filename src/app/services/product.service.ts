@@ -12,12 +12,12 @@ import { CategoryService } from '../services/category.service';
   providedIn: 'root',
 })
 export class ProductService {
-  
+
   private apiUrl = `${environment.apiUrl}/api/Products`;
 
   constructor(private http: HttpClient,
     private categoryService: CategoryService,
-  ) {}
+  ) { }
 
   createProduct(productData: any, file?: File): Observable<Product> {
     const formData = new FormData();
@@ -31,8 +31,8 @@ export class ProductService {
 
     const priceValue =
       typeof productData.price === 'number'
-        ? productData.price.toFixed(2).replace('.', ',')
-        : parseFloat(productData.price).toFixed(2).replace('.', ',');
+        ? productData.price.toFixed(2)
+        : parseFloat(productData.price.toString().replace(',', '.')).toFixed(2);
 
     formData.append('price', priceValue);
     formData.append('categoryId', productData.categoryId);
@@ -49,42 +49,42 @@ export class ProductService {
   }
 
 
-getCategories(restaurantId: string): Observable<CategoryWithProducts[]> {
-  return this.http
-    .get<Product[]>(this.apiUrl, {
-      params: { restaurantId }
-    })
-    .pipe(
-      map(products => {
-        const categoriesMap = new Map<string, CategoryWithProducts>();
-
-        products.forEach(product => {
-          if (!product.category) return;
-
-          const {
-            id,
-            categoryName,
-            displayOrder
-          } = product.category;
-
-          if (!categoriesMap.has(id)) {
-            categoriesMap.set(id, {
-              categoryId: id,
-              categoryName,
-              displayOrder: displayOrder ?? 0,
-              products: []
-            });
-          }
-
-          categoriesMap.get(id)!.products.push(product);
-        });
-
-        return Array.from(categoriesMap.values()).sort(
-          (a, b) => a.displayOrder - b.displayOrder
-        );
+  getCategories(restaurantId: string): Observable<CategoryWithProducts[]> {
+    return this.http
+      .get<Product[]>(this.apiUrl, {
+        params: { restaurantId }
       })
-    );
-}
+      .pipe(
+        map(products => {
+          const categoriesMap = new Map<string, CategoryWithProducts>();
+
+          products.forEach(product => {
+            if (!product.category) return;
+
+            const {
+              id,
+              categoryName,
+              displayOrder
+            } = product.category;
+
+            if (!categoriesMap.has(id)) {
+              categoriesMap.set(id, {
+                categoryId: id,
+                categoryName,
+                displayOrder: displayOrder ?? 0,
+                products: []
+              });
+            }
+
+            categoriesMap.get(id)!.products.push(product);
+          });
+
+          return Array.from(categoriesMap.values()).sort(
+            (a, b) => a.displayOrder - b.displayOrder
+          );
+        })
+      );
+  }
 
   deleteProduct(productId: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/delete-product/${productId}`, null);
@@ -140,22 +140,22 @@ getCategories(restaurantId: string): Observable<CategoryWithProducts[]> {
   }
 
   duplicateProduct(productId: string, newProductName?: string) {
-  return this.http.post(
-    `${this.apiUrl}/duplicate-product`,
-    {
-      productId,
-      newProductName,
-    }
-  );
-}
+    return this.http.post(
+      `${this.apiUrl}/duplicate-product`,
+      {
+        productId,
+        newProductName,
+      }
+    );
+  }
 
-getProductsByRestaurant(restaurantId: string) {
-  return this.http.get<Product[]>(this.apiUrl, {
-    params: { restaurantId }
-  });
-}
+  getProductsByRestaurant(restaurantId: string) {
+    return this.http.get<Product[]>(this.apiUrl, {
+      params: { restaurantId }
+    });
+  }
 
-addItem(payload: AddItemToOrderRequest) {
+  addItem(payload: AddItemToOrderRequest) {
     return this.http.post<OrderResponse>(
       `${this.apiUrl}/items`,
       payload

@@ -115,7 +115,7 @@ export class PaymentComponent implements OnInit {
       paymentWays: this.paymentMethods.filter(m => m.selected).map(m => m.id),
     };
 
-    this.http.put(`${environment.apiUrl}/api/restaurants/${this.restaurantId}`, payload).subscribe({
+    this.http.put(`${environment.apiUrl}/api/restaurants/update-payment-way/${this.restaurantId}`, payload).subscribe({
       next: () => {
         this.saving = false;
         this.showSaveModal = false;
@@ -125,7 +125,9 @@ export class PaymentComponent implements OnInit {
       error: (err) => {
         this.saving = false;
         this.showSaveModal = false;
-        const messages: string[] = err?.error?.errors ?? [];
+        const messages: string[] = err?.error?.errors
+          ? Object.values(err.error.errors).flat() as string[]
+          : [];
         this.saveError = messages.length
           ? messages.join(' ')
           : 'Erro ao salvar. Verifique os dados e tente novamente.';
