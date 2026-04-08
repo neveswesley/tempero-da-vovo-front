@@ -157,44 +157,26 @@ export class CreateProductComponent implements OnInit {
   }
 
   onPriceInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let value = input.value;
+  const input = event.target as HTMLInputElement;
+  let value = input.value.replace(/[^\d]/g, '');
 
-    // Remove tudo que não é número
-    value = value.replace(/[^\d]/g, '');
+  if (value === '') value = '0';
+  value = value.replace(/^0+/, '') || '0';
+  if (value.length > 10) value = value.substring(0, 10);
 
-    // Se vazio, volta pra 0
-    if (value === '') {
-      value = '0';
-    }
+  const cents = parseInt(value, 10);
+  const formatted = (cents / 100).toFixed(2).replace('.', ',');
+  const valueForForm = (cents / 100).toFixed(2);
 
-    // Remove zeros à esquerda, mas mantém pelo menos um zero
-    value = value.replace(/^0+/, '') || '0';
+  input.value = formatted;
+  this.form.get('price')?.setValue(valueForForm, { emitEvent: false });
 
-    // Limita a 10 dígitos totais (para não estourar o decimal(10,2))
-    if (value.length > 10) {
-      value = value.substring(0, 10);
-    }
-
-    // Converte para centavos (inteiro)
-    const cents = parseInt(value);
-
-    // Converte de volta para formato decimal
-    const formatted = (cents / 100).toFixed(2);
-
-    // Atualiza o input
-    input.value = formatted;
-
-    // Atualiza o form control
-    this.form.get('price')?.setValue(formatted, { emitEvent: false });
-
-    // Move o cursor para o final
-    this.ngZone.run(() => {
-      setTimeout(() => {
-        input.setSelectionRange(formatted.length, formatted.length);
-      }, 0);
-    });
-  }
+  this.ngZone.run(() => {
+    setTimeout(() => {
+      input.setSelectionRange(formatted.length, formatted.length);
+    }, 0);
+  });
+}
 
   onPriceBlur() {
     const value = this.form.get('price')?.value;
